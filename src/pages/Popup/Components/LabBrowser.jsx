@@ -10,6 +10,10 @@ export default function LabBrowser() {
         (async () => {
             const currentPatientId = await HinaiApi.getCurrentPatientId();
             setPatientId(currentPatientId);
+            // const radiology = await HinaiApi.getResource(
+            //     `/live/df/pcc/widgets/radiologyServices/${currentPatientId}/max?encounterId=`
+            // )
+            // console.log(radiology);
         })();
     }, [])
 

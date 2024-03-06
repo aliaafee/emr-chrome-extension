@@ -2,10 +2,10 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 
 import ErrorMessage from "./Components/ErrorMessage";
-import LabBrowser from "./Components/LabBrowser";
+import RadiologyBrowser from "./Components/RadiologyBrowser";
 
 const container = document.getElementById("app-container");
 const root = createRoot(container);
 root.render(
-    <LabBrowser />
+    <RadiologyBrowser />
 );

@@ -5,14 +5,13 @@ async function getActiveTab() {
 }
 
 async function getCurrentPatientId(tab = null) {
-
-    const activeTab = (tab == null) ? (
-        await getActiveTab()
-    ) : (
-        tab
-    );
-
     try {
+        const activeTab = (tab == null) ? (
+            await getActiveTab()
+        ) : (
+            tab
+        );
+
         return await chrome.tabs.sendMessage(
             activeTab.id,
             {
@@ -24,7 +23,45 @@ async function getCurrentPatientId(tab = null) {
     }
 }
 
+async function getResource(path, tab = null) {
+    try {
+        const activeTab = (tab == null) ? (
+            await getActiveTab()
+        ) : (
+            tab
+        );
+
+        const response = await chrome.tabs.sendMessage(
+            activeTab.id,
+            {
+                "action": "getResource",
+                "path": path
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to get resource, ${response.status}, ${response.statusText}`,
+                {
+                    cause: response
+                }
+            )
+        }
+
+        return response.data
+
+    } catch (error) {
+        throw new Error(
+            `Could not get resource, ${error.message}`,
+            {
+                cause: error
+            }
+        )
+    }
+}
+
 
 export default {
-    getCurrentPatientId: getCurrentPatientId
+    getCurrentPatientId: getCurrentPatientId,
+    getResource: getResource
 }
