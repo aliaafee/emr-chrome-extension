@@ -1,7 +1,7 @@
 {
-  "name": "Hinai-chrome-extension",
+  "name": "emr-chrome-extension",
   "version": "0.0.1",
-  "description": "Hinai Chrome Extension",
+  "description": "EMR Chrome Extension",
   "scripts": {
     "start": "node scripts/devserver.js",
     "build": "node scripts/build.js"

@@ -1,8 +1,8 @@
 <p align="center"><img src="src/images/icon.svg"/></p>
 
-<h2 align="center">Vinavi Chrome Extension</h2>
+<h2 align="center">EMR Chrome Extension</h2>
 
-<p align="center">Chrome extension to more conveniently browse episodes on Vinavi. This extension is built using React 18, Webpack 5 and Tailwind CSS 3</p>
+<p align="center">Extend functionality of EMR</p>
 
 ## Download
 * Download the latest release file.
