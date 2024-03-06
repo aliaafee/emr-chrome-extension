@@ -6,22 +6,23 @@ import LoadingSpinner from "./LoadingSpinner";
 
 import "../../../styles.css";
 
-export default function RadiologyBrowser({ patientId }) {
+export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [radiologyStudies, setRadiologyStudies] = useState(null);
+    const [labResults, setLabResults] = useState(null);
 
     useEffect(() => {
         if (!patientId) {
-            setRadiologyStudies(null);
+            setLabResults(null);
             return
         }
         (async () => {
             setLoading(true);
             try {
-                setRadiologyStudies(
+                setLabResults(
                     await HinaiApi.getResource(
-                    `/live/df/pcc/widgets/radiologyServices/${patientId}/max?encounterId=`
+                        // `/live/df/pcc/widgets/labservices/${patientId}/min/2?encounterId=`
+                        `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`
                     )
                 );
             } catch(err) {
@@ -49,7 +50,7 @@ export default function RadiologyBrowser({ patientId }) {
         );
     }
 
-    if (!radiologyStudies) {
+    if (!labResults) {
         return (
             <div className="w-full h-full flex">
                 <ErrorMessage 
@@ -61,12 +62,13 @@ export default function RadiologyBrowser({ patientId }) {
     }
 
     return (
-        <div className="w-full h-full flex">
+        <div className="w-full h-full flex flex-col">
+            <div className="text-lg">Lab Results of {patientId}</div>
             <div>
-                <div className="text-lg">{patientId}</div>
-                <div className="whitespace-pre-wrap">
-                    {JSON.stringify(radiologyStudies, null, 2)}
-                </div>
+                {labResults.data.length} Lab Results, {labResults.data[0].datewiseValues.length} Datewise Values
+            </div>
+            <div className="whitespace-pre-wrap overflow-auto">
+                {JSON.stringify(labResults.data[0].datewiseValues, null, 2)}
             </div>
         </div>
     );
