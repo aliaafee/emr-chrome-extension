@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import HinaiApi from "../../../api/HinaiApi";
+import EmrApi from "../../../api/EmrApi";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -20,7 +20,7 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
             setLoading(true);
             try {
                 setLabResults(
-                    await HinaiApi.getResource(
+                    await EmrApi.getResource(
                         // `/live/df/pcc/widgets/labservices/${patientId}/min/2?encounterId=`
                         `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`
                     )

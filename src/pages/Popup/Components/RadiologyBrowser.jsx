@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import HinaiApi from "../../../api/HinaiApi";
+import EmrApi from "../../../api/EmrApi";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -20,7 +20,7 @@ export default function RadiologyBrowser({ patientId }) {
             setLoading(true);
             try {
                 setRadiologyStudies(
-                    await HinaiApi.getResource(
+                    await EmrApi.getResource(
                     `/live/df/pcc/widgets/radiologyServices/${patientId}/max?encounterId=`
                     )
                 );
