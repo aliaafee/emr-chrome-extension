@@ -4,16 +4,18 @@ async function getActiveTab() {
     return tab;
 }
 
-async function getCurrentPatientId(tab = null) {
-    try {
-        const activeTab = (tab == null) ? (
-            await getActiveTab()
+async function getCurrentPatientId(tabId = null) {
+    try {  
+        console.log("Tab ID is")
+        console.log(tabId);
+        const activeTabId = (tabId === null) ? (
+            (await getActiveTab()).id
         ) : (
-            tab
+            tabId
         );
 
         return await chrome.tabs.sendMessage(
-            activeTab.id,
+            activeTabId,
             {
                 "action": "getCurrentPatientId"
             }
@@ -23,16 +25,16 @@ async function getCurrentPatientId(tab = null) {
     }
 }
 
-async function getResource(path, tab = null) {
+async function getResource(path, tabId = null) {
     try {
-        const activeTab = (tab == null) ? (
-            await getActiveTab()
+        const activeTabId = (tabId == null) ? (
+            (await getActiveTab()).id
         ) : (
-            tab
+            tabId
         );
 
         const response = await chrome.tabs.sendMessage(
-            activeTab.id,
+            activeTabId,
             {
                 "action": "getResource",
                 "path": path
@@ -62,6 +64,7 @@ async function getResource(path, tab = null) {
 
 
 export default {
+    getActiveTab: getActiveTab,
     getCurrentPatientId: getCurrentPatientId,
     getResource: getResource
 }

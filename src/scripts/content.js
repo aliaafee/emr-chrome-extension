@@ -20,6 +20,7 @@ chrome.runtime.onMessage.addListener(
 );
 
 function getCurrentPatientId() {
+    console.log("Getting Patient Id");
     const idElement = document.getElementById("currentPatientId");
     if (idElement === null) {
         return null;
@@ -34,6 +35,8 @@ function getApiRoot() {
 }
 
 async function getResource(resourcePath) {
+    console.log(`Getting Resource ${resourcePath}`);
+
     const url = `${getApiRoot()}${resourcePath}`
 
     try {

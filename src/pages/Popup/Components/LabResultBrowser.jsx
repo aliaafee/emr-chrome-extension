@@ -6,7 +6,7 @@ import LoadingSpinner from "./LoadingSpinner";
 
 import "../../../styles.css";
 
-export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
+export default function LabResultBrowser({ patientId, targetTabId=null, datewiseCount = 10 }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [labResults, setLabResults] = useState(null);
@@ -22,7 +22,8 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
                 setLabResults(
                     await EmrApi.getResource(
                         // `/live/df/pcc/widgets/labservices/${patientId}/min/2?encounterId=`
-                        `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`
+                        `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
+                        targetTabId
                     )
                 );
             } catch(err) {
@@ -68,7 +69,15 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
                 {labResults.data.length} Lab Results, {labResults.data[0].datewiseValues.length} Datewise Values
             </div>
             <div className="whitespace-pre-wrap overflow-auto">
-                {JSON.stringify(labResults.data[0].datewiseValues, null, 2)}
+                {labResults.data.map((result, index) => (
+                    (result.hasParameter) ? (
+                        result.parameters.map((parameter, index) => (
+                            <div>{parameter.name}</div>
+                        ))
+                    ) : (
+                        <div>{result.name}</div>
+                    )
+                ))}
             </div>
         </div>
     );

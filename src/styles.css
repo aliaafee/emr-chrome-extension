@@ -3,3 +3,13 @@
 @tailwind components;
 
 @tailwind utilities;
+
+
+.pop-out {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    mask: url("./images/pop-out-line.svg") no-repeat center;
+    mask-size: contain;
+    z-index: 1000;
+}
