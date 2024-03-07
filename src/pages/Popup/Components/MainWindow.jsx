@@ -40,7 +40,7 @@ function ToolBar({ targetTabId }) {
     }
 
     return (
-        <div>
+        <div className="flex justify-end grow">
             <button
                 onClick={onNewWindow}
                 title="Open New Window"
@@ -75,6 +75,14 @@ export default function MainWindow() {
         })();
     }, [])
 
+    if (loading) {
+        return (
+            <div className="w-full h-full flex">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
     if (error) {
         return (
             <div className="w-full h-full flex">
@@ -85,7 +93,13 @@ export default function MainWindow() {
 
     return (
         <div className="w-full h-full flex flex-col">
-            <div>Header tabId: {targetTabId} patientId: {patientId} <ToolBar targetTabId={targetTabId}/></div>
+            <div className="flex">
+                <div className="grow">
+                    tabId: {targetTabId} patientId: {patientId}
+                </div>
+                <ToolBar targetTabId={targetTabId}/>
+            </div>
+                
             <LabResultBrowser 
                 patientId={patientId}
                 targetTabId={targetTabId}

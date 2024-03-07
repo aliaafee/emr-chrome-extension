@@ -21,7 +21,6 @@ export default function LabResultBrowser({ patientId, targetTabId=null, datewise
             try {
                 setLabResults(
                     await EmrApi.getResource(
-                        // `/live/df/pcc/widgets/labservices/${patientId}/min/2?encounterId=`
                         `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
                         targetTabId
                     )
