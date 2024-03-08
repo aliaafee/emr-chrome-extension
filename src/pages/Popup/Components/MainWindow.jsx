@@ -12,32 +12,31 @@ async function getTargetTabId() {
     console.log(queryString);
     const urlParams = new URLSearchParams(queryString);
 
-    console.log(urlParams.has('tabid'))
-    if (urlParams.has('tabid')) {
-        const tabId = Number(urlParams.get('tabid'));
+    console.log(urlParams.has("tabid"));
+    if (urlParams.has("tabid")) {
+        const tabId = Number(urlParams.get("tabid"));
         const tab = await chrome.tabs.get(tabId);
 
         return tab.id;
     }
 
-    return (await EmrApi.getActiveTab()).id
+    return (await EmrApi.getActiveTab()).id;
 }
 
 function ToolBar({ targetTabId }) {
     const onNewWindow = () => {
-        const url = targetTabId ? (
-            `popup.html?tabid=${targetTabId}`
-        ) : (
-            `popup.html`
-        );
+        const url = targetTabId
+            ? `popup.html?tabid=${targetTabId}`
+            : `popup.html`;
 
-        chrome.windows.create({
-            url: chrome.runtime.getURL(url),
-            type: "popup"
-        }, (window) => {
-            
-        })
-    }
+        chrome.windows.create(
+            {
+                url: chrome.runtime.getURL(url),
+                type: "popup",
+            },
+            (window) => {}
+        );
+    };
 
     return (
         <div className="flex justify-end grow">
@@ -45,11 +44,9 @@ function ToolBar({ targetTabId }) {
                 onClick={onNewWindow}
                 title="Open New Window"
                 className="pop-out bg-black"
-            >
-
-            </button>
+            ></button>
         </div>
-    )
+    );
 }
 
 export default function MainWindow() {
@@ -64,16 +61,14 @@ export default function MainWindow() {
             try {
                 const tabId = await getTargetTabId();
                 setTargetTabId(tabId);
-                setPatientId(
-                    await EmrApi.getCurrentPatientId(tabId)
-                );
-            } catch(err) {
+                setPatientId(await EmrApi.getCurrentPatientId(tabId));
+            } catch (err) {
                 setError(err);
             } finally {
                 setLoading(false);
             }
         })();
-    }, [])
+    }, []);
 
     if (loading) {
         return (
@@ -97,13 +92,10 @@ export default function MainWindow() {
                 <div className="grow">
                     tabId: {targetTabId} patientId: {patientId}
                 </div>
-                <ToolBar targetTabId={targetTabId}/>
+                <ToolBar targetTabId={targetTabId} />
             </div>
-                
-            <LabResultBrowser 
-                patientId={patientId}
-                targetTabId={targetTabId}
-            />
+
+            <LabResultBrowser patientId={patientId} targetTabId={targetTabId} />
         </div>
-    )
+    );
 }

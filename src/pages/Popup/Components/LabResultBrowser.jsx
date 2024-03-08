@@ -6,7 +6,11 @@ import LoadingSpinner from "./LoadingSpinner";
 
 import "../../../styles.css";
 
-export default function LabResultBrowser({ patientId, targetTabId=null, datewiseCount = 10 }) {
+export default function LabResultBrowser({
+    patientId,
+    targetTabId = null,
+    datewiseCount = 10,
+}) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [labResults, setLabResults] = useState(null);
@@ -14,7 +18,7 @@ export default function LabResultBrowser({ patientId, targetTabId=null, datewise
     useEffect(() => {
         if (!patientId) {
             setLabResults(null);
-            return
+            return;
         }
         (async () => {
             setLoading(true);
@@ -25,14 +29,13 @@ export default function LabResultBrowser({ patientId, targetTabId=null, datewise
                         targetTabId
                     )
                 );
-            } catch(err) {
+            } catch (err) {
                 setError(err);
             } finally {
                 setLoading(false);
             }
-            
         })();
-    }, [patientId])
+    }, [patientId]);
 
     if (loading) {
         return (
@@ -53,8 +56,8 @@ export default function LabResultBrowser({ patientId, targetTabId=null, datewise
     if (!labResults) {
         return (
             <div className="w-full h-full flex">
-                <ErrorMessage 
-                    title="No Studies" 
+                <ErrorMessage
+                    title="No Studies"
                     message={!patientId && "No Patient Selected"}
                 />
             </div>
@@ -65,18 +68,19 @@ export default function LabResultBrowser({ patientId, targetTabId=null, datewise
         <div className="w-full h-full flex flex-col">
             <div className="text-lg">Lab Results of {patientId}</div>
             <div>
-                {labResults.data.length} Lab Results, {labResults.data[0].datewiseValues.length} Datewise Values
+                {labResults.data.length} Lab Results,{" "}
+                {labResults.data[0].datewiseValues.length} Datewise Values
             </div>
             <div className="whitespace-pre-wrap overflow-auto">
-                {labResults.data.map((result, index) => (
-                    (result.hasParameter) ? (
+                {labResults.data.map((result, index) =>
+                    result.hasParameter ? (
                         result.parameters.map((parameter, index) => (
                             <div>{parameter.name}</div>
                         ))
                     ) : (
                         <div>{result.name}</div>
                     )
-                ))}
+                )}
             </div>
         </div>
     );

@@ -13,21 +13,4 @@ const root = createRoot(container);
 
 root.render(<MainWindow />)
 
-// try {
-//     const patientId = await EmrApi.getCurrentPatientId();
-//     if (!patientId) {
-//         root.render(
-//             <ErrorMessage title={"No Patient"} />
-//         )
-//     }
-
-//     root.render(
-//         <LabResultBrowser patientId={patientId} />
-//     );
-// } catch(err) {
-//     root.render(
-//         <ErrorMessage title={"Error"} message={err.message} />
-//     )
-// }
-
 
