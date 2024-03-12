@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import EmrApi from "../../../api/EmrApi";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
+import { JSONTree } from "react-json-tree";
 
 import "../../../styles.css";
 
@@ -67,17 +68,38 @@ export default function LabResultBrowser({ patientId, targetTabId=null, datewise
             <div>
                 {labResults.data.length} Lab Results, {labResults.data[0].datewiseValues.length} Datewise Values
             </div>
-            <div className="whitespace-pre-wrap overflow-auto">
+            <ul className="whitespace-pre-wrap overflow-auto">
                 {labResults.data.map((result, index) => (
-                    (result.hasParameter) ? (
-                        result.parameters.map((parameter, index) => (
-                            <div>{parameter.name}</div>
-                        ))
+                    // (result.hasParameter) ? (
+                    //     result.parameters.map((parameter, index) => (
+                    //         <li>
+                    //             <div>{result.name}-{parameter.name}</div>
+                    //             <JSONTree data={parameter} />
+                    //         </li>
+                    //     ))
+                    // ) : (
+                    //     <li>
+                    //         <div>{result.name}</div>
+                    //         <JSONTree data={result} />
+                    //     </li>
+                    // )
+                    (result.formResultType === 0) ? (
+                        <li>
+                            <div>
+                                {result.name}
+                            </div>
+                            <JSONTree data={result} />
+                        </li>
                     ) : (
-                        <div>{result.name}</div>
+                        <li>
+                            <div>
+                                Culture Result {result.name}
+                            </div>
+                            <JSONTree data={result} />
+                        </li>
                     )
                 ))}
-            </div>
+            </ul>
         </div>
     );
 }
