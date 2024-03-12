@@ -1,23 +1,20 @@
-chrome.runtime.onMessage.addListener(
-    (request, sender, sendResponse) => {
-        
-        if (request.action === "getCurrentPatientId") {
-            (async () => {
-                const patientId = getCurrentPatientId();
-                sendResponse(patientId);
-            })();
-            return true;
-        }
-
-        if (request.action === "getResource") {
-            (async () => {
-                const response = await getResource(request.path);
-                sendResponse(response);
-            })();
-            return true;
-        }
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "getCurrentPatientId") {
+        (async () => {
+            const patientId = getCurrentPatientId();
+            sendResponse(patientId);
+        })();
+        return true;
     }
-);
+
+    if (request.action === "getResource") {
+        (async () => {
+            const response = await getResource(request.path);
+            sendResponse(response);
+        })();
+        return true;
+    }
+});
 
 function getCurrentPatientId() {
     console.log("Getting Patient Id");
@@ -37,7 +34,7 @@ function getApiRoot() {
 async function getResource(resourcePath) {
     console.log(`Getting Resource ${resourcePath}`);
 
-    const url = `${getApiRoot()}${resourcePath}`
+    const url = `${getApiRoot()}${resourcePath}`;
 
     try {
         const response = await fetch(url);
@@ -47,22 +44,22 @@ async function getResource(resourcePath) {
                 ok: false,
                 status: response.status,
                 statusText: response.statusText,
-                data: null
-            }
+                data: null,
+            };
         }
 
         return {
             ok: true,
             status: response.status,
             statusText: response.statusText,
-            data: await response.json()
-        }
+            data: await response.json(),
+        };
     } catch (error) {
         return {
             ok: false,
             status: null,
             statusText: error.message,
-            data: null
-        }
+            data: null,
+        };
     }
 }

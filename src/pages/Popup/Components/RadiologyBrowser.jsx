@@ -14,24 +14,23 @@ export default function RadiologyBrowser({ patientId }) {
     useEffect(() => {
         if (!patientId) {
             setRadiologyStudies(null);
-            return
+            return;
         }
         (async () => {
             setLoading(true);
             try {
                 setRadiologyStudies(
                     await EmrApi.getResource(
-                    `/live/df/pcc/widgets/radiologyServices/${patientId}/max?encounterId=`
+                        `/live/df/pcc/widgets/radiologyServices/${patientId}/max?encounterId=`
                     )
                 );
-            } catch(err) {
+            } catch (err) {
                 setError(err);
             } finally {
                 setLoading(false);
             }
-            
         })();
-    }, [patientId])
+    }, [patientId]);
 
     if (loading) {
         return (
@@ -52,8 +51,8 @@ export default function RadiologyBrowser({ patientId }) {
     if (!radiologyStudies) {
         return (
             <div className="w-full h-full flex">
-                <ErrorMessage 
-                    title="No Studies" 
+                <ErrorMessage
+                    title="No Studies"
                     message={!patientId && "No Patient Selected"}
                 />
             </div>
