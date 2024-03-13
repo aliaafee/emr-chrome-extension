@@ -7,6 +7,24 @@ import { JSONTree } from "react-json-tree";
 
 import "../../../styles.css";
 
+const sanitizeLabResults = (results) => {
+    return results.reduce(
+        (a, result) =>
+            result.formResultType === 0
+                ? result.hasParameter
+                    ? [
+                          ...a,
+                          ...result.parameters.map((parameter, index) => ({
+                              parent: result.name,
+                              ...parameter,
+                          })),
+                      ]
+                    : [...a, result]
+                : [...a, result],
+        []
+    );
+};
+
 export default function LabResultBrowser({
     patientId,
     targetTabId = null,
@@ -65,6 +83,9 @@ export default function LabResultBrowser({
         );
     }
 
+    const results = sanitizeLabResults(labResults.data);
+    console.log(sanitizeLabResults(labResults.data));
+
     return (
         <div className="w-full flex flex-col overflow-auto">
             <div className="text-lg">Lab Results of {patientId}</div>
@@ -73,32 +94,26 @@ export default function LabResultBrowser({
                 {labResults.data[0].datewiseValues.length} Datewise Values
             </div>
             <ul className="whitespace-pre-wrap overflow-auto">
-                {labResults.data.map((result, index) =>
-                    // (result.hasParameter) ? (
-                    //     result.parameters.map((parameter, index) => (
-                    //         <li>
-                    //             <div>{result.name}-{parameter.name}</div>
-                    //             <JSONTree data={parameter} />
-                    //         </li>
-                    //     ))
-                    // ) : (
-                    //     <li>
-                    //         <div>{result.name}</div>
-                    //         <JSONTree data={result} />
-                    //     </li>
-                    // )
-                    result.formResultType === 0 ? (
-                        <li>
-                            <div>{result.name}</div>
-                            <JSONTree data={result} />
-                        </li>
-                    ) : (
-                        <li>
-                            <div>Culture Result {result.name}</div>
-                            <JSONTree data={result} />
-                        </li>
-                    )
-                )}
+                {results.map((result, index) => (
+                    <li key={index}>
+                        <div>
+                            {result.parent} {result.name}
+                        </div>
+                        {result.datewiseValues && (
+                            <ul>
+                                {result.datewiseValues.map(
+                                    (datewiseItem, dateIndex) => (
+                                        <li key={dateIndex}>
+                                            {datewiseItem.resultDate}{" "}
+                                            {datewiseItem.value}{" "}
+                                            {datewiseItem.unit}
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+                        )}
+                    </li>
+                ))}
             </ul>
         </div>
     );
