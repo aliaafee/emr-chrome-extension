@@ -100,13 +100,15 @@ export default function LabResultBrowser({
                             {result.parent} {result.name}
                         </div>
                         {result.datewiseValues && (
-                            <ul>
+                            <ul className="flex">
                                 {result.datewiseValues.map(
                                     (datewiseItem, dateIndex) => (
                                         <li key={dateIndex}>
-                                            {datewiseItem.resultDate}{" "}
-                                            {datewiseItem.value}{" "}
-                                            {datewiseItem.unit}
+                                            <div>{datewiseItem.resultDate}</div>
+                                            <div>
+                                                {datewiseItem.value}{" "}
+                                                {datewiseItem.unit}
+                                            </div>
                                         </li>
                                     )
                                 )}
