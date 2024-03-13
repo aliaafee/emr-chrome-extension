@@ -66,14 +66,14 @@ export default function LabResultBrowser({
     }
 
     return (
-        <div className="w-full h-full flex flex-col">
+        <div className="w-full flex flex-col overflow-auto">
             <div className="text-lg">Lab Results of {patientId}</div>
             <div>
                 {labResults.data.length} Lab Results,{" "}
                 {labResults.data[0].datewiseValues.length} Datewise Values
             </div>
             <ul className="whitespace-pre-wrap overflow-auto">
-                {labResults.data.map((result, index) => (
+                {labResults.data.map((result, index) =>
                     // (result.hasParameter) ? (
                     //     result.parameters.map((parameter, index) => (
                     //         <li>
@@ -87,22 +87,18 @@ export default function LabResultBrowser({
                     //         <JSONTree data={result} />
                     //     </li>
                     // )
-                    (result.formResultType === 0) ? (
+                    result.formResultType === 0 ? (
                         <li>
-                            <div>
-                                {result.name}
-                            </div>
+                            <div>{result.name}</div>
                             <JSONTree data={result} />
                         </li>
                     ) : (
                         <li>
-                            <div>
-                                Culture Result {result.name}
-                            </div>
+                            <div>Culture Result {result.name}</div>
                             <JSONTree data={result} />
                         </li>
                     )
-                ))}
+                )}
             </ul>
         </div>
     );
