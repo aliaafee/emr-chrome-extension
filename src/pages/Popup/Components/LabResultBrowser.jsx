@@ -14,10 +14,27 @@ const sanitizeLabResults = (results) => {
                 ? result.hasParameter
                     ? [
                           ...a,
-                          ...result.parameters.map((parameter, index) => ({
+                          ...result.parameters.map((parameter) => ({
                               parent: result.name,
                               ...parameter,
                           })),
+                      ]
+                    : result.isProfile
+                    ? [
+                          ...a,
+                          ...result.profiles.reduce((a_profile, profile) =>
+                              profile.hasParameter
+                                  ? [...a_profile, ...profile.parameters.map(
+                                        (parameter) => ({
+                                            parent: result.name + "-" + profile.name,
+                                            ...parameter
+                                        })
+                                    )]
+                                  : [...a_profile, {
+                                        parent: result.name,
+                                        ...profile,
+                                    }]
+                          , []),
                       ]
                     : [...a, result]
                 : [...a, result],
@@ -93,10 +110,13 @@ export default function LabResultBrowser({
                 {labResults.data.length} Lab Results,{" "}
                 {labResults.data[0].datewiseValues.length} Datewise Values
             </div>
+            <div>
+                <JSONTree data={labResults} />
+            </div>
             <ul className="whitespace-pre-wrap overflow-auto">
                 {results.map((result, index) => (
                     <li key={index}>
-                        <div>
+                        <div className="bg-blue-100">
                             {result.parent} {result.name}
                         </div>
                         {result.datewiseValues && (
