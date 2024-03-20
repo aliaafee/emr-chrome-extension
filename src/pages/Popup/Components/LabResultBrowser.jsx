@@ -32,9 +32,7 @@ const sanitizeLabResults = (results) =>
                                             ...profile.parameters.map(
                                                 (parameter) => ({
                                                     parent:
-                                                        result.name +
-                                                        "-" +
-                                                        profile.name,
+                                                        result.name,
                                                     resultDate:
                                                         result.resultDate,
                                                     ...parameter,
@@ -62,6 +60,26 @@ const toSortedLabResults = (results) =>
         [a.name, b.name].toSorted()[0] === a.name ? -1 : 1
     );
 
+const mergeDuplicates = (results) =>
+    results.reduce((a, result) => {
+        if (result.name in a) {
+            a[result.name].datewiseValues = [
+                ...a[result.name].datewiseValues,
+                ...result.datewiseValues,
+            ];
+            if ("sources" in a[result.name]) {
+                a[result.name]["sources"] = [...a[result.name].sources, result];
+            } else {
+                a[result.name]["sources"] = [result];
+            }
+            return a;
+        }
+        return {
+            ...a,
+            [result.name]: result,
+        };
+    }, {});
+
 const parseDate = (stringDate) => dayjs(stringDate, "MMM D, YYYY h:mm:ss A");
 
 const formateDate = (stringDate) =>
@@ -79,19 +97,18 @@ const isInRange = (result) => {
 };
 
 const ResultCard = ({ result }) => (
-    <div className="inline-block bg-gray-300 w-28 p-1.5 m-1.5 rounded">
+    <div className="inline-block min-w-28">
         <div
-            className={`font-bold text-center ${
+            className={`font-bold ${
                 isInRange(result) ? "text-black" : "text-red-600"
             }`}
         >
-            {result.value} {result.unit}
+            {result.value}
         </div>
-        <div className="text-center">{result.range}</div>
-        <div className="text-center text-gray-600">
+        <div className="text-gray-600">
             {parseDate(result.resultDate).format("DD/MM/YYYY")}
         </div>
-        <div className="text-center text-gray-600">
+        <div className="text-gray-600">
             {parseDate(result.resultDate).format("HH:mm:ss")}
         </div>
     </div>
@@ -115,10 +132,12 @@ export default function LabResultBrowser({
             setLoading(true);
             try {
                 setLabResults(
-                    sanitizeLabResults(
-                        await EmrApi.getResource(
-                            `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
-                            targetTabId
+                    mergeDuplicates(
+                        sanitizeLabResults(
+                            await EmrApi.getResource(
+                                `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
+                                targetTabId
+                            )
                         )
                     )
                 );
@@ -157,25 +176,46 @@ export default function LabResultBrowser({
         );
     }
 
+    console.log(labResults);
+
     return (
         <div className="w-full flex flex-col overflow-auto">
             <div className="text-lg">Lab Results of {patientId}</div>
             <ul className="whitespace-pre-wrap overflow-auto">
-                {toSortedLabResults(labResults).map((result, index) => (
-                    <li key={index}>
-                        <div className="bg-blue-100">
-                            {formateDate(result.resultDate)} {result.name}{" "}
-                            {result.parent}
+                {Object.entries(labResults).map(([key, result]) => (
+                    <li
+                        key={key}
+                        className="grid gap-1.5 p-1.5 even:bg-gray-200 odd:bg-gray-300"
+                        style={{
+                            gridTemplateColumns:
+                                "minmax(6rem, max-content) 1fr",
+                        }}
+                    >
+                        <div className="">
+                            {result.parent && <div>{result.parent}</div>}
+                            <div>{result.name}</div>
+                            <div>{result.unit}</div>
+                            <div>{result.range}</div>
                         </div>
-                        {/* <JSONTree data={result} /> */}
                         {result.datewiseValues && (
                             <div>
-                                {result.datewiseValues.map(
-                                    (datewiseItem, dateIndex) =>
-                                        datewiseItem.value && (
-                                            <ResultCard result={datewiseItem} />
+                                {result.datewiseValues
+                                    .toSorted((a, b) =>
+                                        parseDate(a.resultDate).isBefore(
+                                            parseDate(b.resultDate)
                                         )
-                                )}
+                                            ? 1
+                                            : -1
+                                    )
+                                    .map(
+                                        (datewiseItem, dateIndex) =>
+                                            datewiseItem.value && (
+                                                <ResultCard
+                                                    result={datewiseItem}
+                                                    key={dateIndex}
+                                                />
+                                            )
+                                    )}
                             </div>
                         )}
                     </li>
