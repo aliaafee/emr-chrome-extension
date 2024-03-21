@@ -31,8 +31,7 @@ const sanitizeLabResults = (results) =>
                                             ...a_profile,
                                             ...profile.parameters.map(
                                                 (parameter) => ({
-                                                    parent:
-                                                        result.name,
+                                                    parent: result.name,
                                                     resultDate:
                                                         result.resultDate,
                                                     ...parameter,
@@ -63,9 +62,15 @@ const toSortedLabResults = (results) =>
 const mergeDuplicates = (results) =>
     results.reduce((a, result) => {
         if (result.name in a) {
+            const uniqueDatewiseValues = result.datewiseValues.filter((value) =>
+                !a[result.name].datewiseValues.reduce(
+                    (a, v) => a || v.labResultId === value.labResultId,
+                    false
+                )
+            );
             a[result.name].datewiseValues = [
                 ...a[result.name].datewiseValues,
-                ...result.datewiseValues,
+                ...uniqueDatewiseValues,
             ];
             if ("sources" in a[result.name]) {
                 a[result.name]["sources"] = [...a[result.name].sources, result];
@@ -183,42 +188,47 @@ export default function LabResultBrowser({
             <div className="text-lg">Lab Results of {patientId}</div>
             <ul className="whitespace-pre-wrap overflow-auto">
                 {Object.entries(labResults).map(([key, result]) => (
-                    <li
-                        key={key}
-                        className="grid gap-1.5 p-1.5 even:bg-gray-200 odd:bg-gray-300"
-                        style={{
-                            gridTemplateColumns:
-                                "minmax(6rem, max-content) 1fr",
-                        }}
-                    >
-                        <div className="">
-                            {result.parent && <div>{result.parent}</div>}
-                            <div>{result.name}</div>
-                            <div>{result.unit}</div>
-                            <div>{result.range}</div>
-                        </div>
-                        {result.datewiseValues && (
-                            <div>
-                                {result.datewiseValues
-                                    .toSorted((a, b) =>
-                                        parseDate(a.resultDate).isBefore(
-                                            parseDate(b.resultDate)
-                                        )
-                                            ? 1
-                                            : -1
-                                    )
-                                    .map(
-                                        (datewiseItem, dateIndex) =>
-                                            datewiseItem.value && (
-                                                <ResultCard
-                                                    result={datewiseItem}
-                                                    key={dateIndex}
-                                                />
-                                            )
-                                    )}
+                    <>
+                        <li
+                            key={key}
+                            className="grid gap-1.5 p-1.5 even:bg-gray-200 odd:bg-gray-300"
+                            style={{
+                                gridTemplateColumns:
+                                    "minmax(6rem, max-content) 1fr",
+                            }}
+                        >
+                            <div className="">
+                                {result.parent && <div>{result.parent}</div>}
+                                <div>{result.name}</div>
+                                <div>{result.unit}</div>
+                                <div>{result.range}</div>
                             </div>
-                        )}
-                    </li>
+                            {result.datewiseValues && (
+                                <div>
+                                    {result.datewiseValues
+                                        .toSorted((a, b) =>
+                                            parseDate(a.resultDate).isBefore(
+                                                parseDate(b.resultDate)
+                                            )
+                                                ? 1
+                                                : -1
+                                        )
+                                        .map(
+                                            (datewiseItem, dateIndex) =>
+                                                datewiseItem.value && (
+                                                    <ResultCard
+                                                        result={datewiseItem}
+                                                        key={dateIndex}
+                                                    />
+                                                )
+                                        )}
+                                </div>
+                            )}
+                        </li>
+                        <li>
+                            <JSONTree data={result} />
+                        </li>
+                    </>
                 ))}
             </ul>
         </div>
