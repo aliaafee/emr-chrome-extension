@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import EmrApi from "../../../api/EmrApi";
+import { getResource } from "../../../api/EmrApi";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 import { JSONTree } from "react-json-tree";
@@ -62,11 +62,12 @@ const toSortedLabResults = (results) =>
 const mergeDuplicates = (results) =>
     results.reduce((a, result) => {
         if (result.name in a) {
-            const uniqueDatewiseValues = result.datewiseValues.filter((value) =>
-                !a[result.name].datewiseValues.reduce(
-                    (a, v) => a || v.labResultId === value.labResultId,
-                    false
-                )
+            const uniqueDatewiseValues = result.datewiseValues.filter(
+                (value) =>
+                    !a[result.name].datewiseValues.reduce(
+                        (a, v) => a || v.labResultId === value.labResultId,
+                        false
+                    )
             );
             a[result.name].datewiseValues = [
                 ...a[result.name].datewiseValues,
@@ -139,7 +140,7 @@ export default function LabResultBrowser({
                 setLabResults(
                     mergeDuplicates(
                         sanitizeLabResults(
-                            await EmrApi.getResource(
+                            await getResource(
                                 `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
                                 targetTabId
                             )

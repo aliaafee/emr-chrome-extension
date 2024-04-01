@@ -1,3 +1,6 @@
+const fileServerUrl = "http://10.10.10.197:4000";
+const viewerUrl = "http://10.10.10.91:3000";
+
 async function getActiveTab() {
     let queryOptions = { active: true, currentWindow: true };
     let [tab] = await chrome.tabs.query(queryOptions);
@@ -63,8 +66,26 @@ async function getResource(path, tabId = null) {
 }
 
 
-export default {
-    getActiveTab: getActiveTab,
-    getCurrentPatientId: getCurrentPatientId,
-    getResource: getResource
-}
+const getRadiologyStudyUrl = (study) => {
+    const studyDate = new Date(study.studyDate);
+
+    return `${fileServerUrl}/zfpviewer/api/download?file=/zfp/${studyDate.getFullYear()}/${
+        studyDate.getMonth() + 1
+    }/${studyDate.getDate()}/${study.studyUid}.json`;
+};
+
+export {
+    getActiveTab,
+    getCurrentPatientId,
+    getResource,
+    viewerUrl,
+    fileServerUrl,
+    getRadiologyStudyUrl
+};
+
+
+// export default {
+//     getActiveTab: getActiveTab,
+//     getCurrentPatientId: getCurrentPatientId,
+//     getResource: getResource
+// }

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import EmrApi from "../../../api/EmrApi";
+import { getActiveTab, getCurrentPatientId } from "../../../api/EmrApi";
 import LabResultBrowser from "./LabResultBrowser";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 
 import "../../../styles.css";
+import RadiologyBrowser from "./RadiologyBrowser";
 
 async function getTargetTabId() {
     const queryString = window.location.search;
@@ -20,7 +21,7 @@ async function getTargetTabId() {
         return tab.id;
     }
 
-    return (await EmrApi.getActiveTab()).id;
+    return (await getActiveTab()).id;
 }
 
 function ToolBar({ targetTabId }) {
@@ -49,7 +50,7 @@ function ToolBar({ targetTabId }) {
     );
 }
 
-export default function MainWindow() {
+export default function App() {
     const [targetTabId, setTargetTabId] = useState(null);
     const [patientId, setPatientId] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -61,7 +62,7 @@ export default function MainWindow() {
             try {
                 const tabId = await getTargetTabId();
                 setTargetTabId(tabId);
-                setPatientId(await EmrApi.getCurrentPatientId(tabId));
+                setPatientId(await getCurrentPatientId(tabId));
             } catch (err) {
                 setError(err);
             } finally {
@@ -95,7 +96,8 @@ export default function MainWindow() {
                 <ToolBar targetTabId={targetTabId} />
             </div>
 
-            <LabResultBrowser patientId={patientId} targetTabId={targetTabId} />
+            {/* <LabResultBrowser patientId={patientId} targetTabId={targetTabId} /> */}
+            <RadiologyBrowser patientId={patientId} targetTabId={targetTabId} />
         </div>
     );
 }
