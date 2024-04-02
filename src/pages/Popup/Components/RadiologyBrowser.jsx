@@ -28,18 +28,21 @@ const ToolBar = ({ selectedStudies }) => {
         win.document.body.innerHTML = `<div style="width: 100%; height: 100%; display: flex;"><iframe src="${studyAUrl}" style="flex-grow:1;">A</iframe><iframe src="${studyBUrl}" style="flex-grow:1;">B</iframe></div>`;
     };
     return (
-        <div className="flex bg-gray-300">
+        <div className="flex bg-gray-400 min-h-[30px]">
             <button
-                className="hover:bg-gray-400 px-1.5 py-1 disabled:text-gray-600"
+                className="hover:bg-gray-500 px-1.5 py-1 disabled:text-gray-600 flex justify-center items-center gap-0.5"
                 disabled={selectedStudies.length !== 2}
                 title={`Compare Studies ${
                     selectedStudies.length !== 2
-                        ? ": Selected 2 studies to compare"
+                        ? ": Select two studies to compare"
                         : ""
                 }`}
                 onClick={handleCompareStudies}
             >
-                <GitCompareArrows className="" width={24} height={24} />
+                <div>
+                    <GitCompareArrows className="" width={16} height={16} />
+                </div>
+                <div>Compare Studies</div>
             </button>
         </div>
     );

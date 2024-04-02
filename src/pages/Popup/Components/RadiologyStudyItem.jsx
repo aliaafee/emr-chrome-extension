@@ -36,7 +36,10 @@ const RadiologyStudyItem = ({
     // };
 
     return (
-        <li key={key} className="flex bg-gray-100 hover:bg-gray-200">
+        <li
+            key={key}
+            className="flex bg-gray-200 odd:bg-gray-100 hover:bg-gray-300 min-h-[30px]"
+        >
             <div className="flex grow gap-1.5 p-1.5 cursor-pointer ">
                 <input
                     type="checkbox"
