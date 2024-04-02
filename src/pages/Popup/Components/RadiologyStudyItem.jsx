@@ -1,13 +1,20 @@
 import React from "react";
-import { PanelsTopLeftIcon, DownloadIcon, MonitorDownIcon } from "lucide-react";
+import { EyeIcon, DownloadIcon, MonitorDownIcon } from "lucide-react";
 
 import { viewerUrl, getRadiologyStudyUrl } from "../../../api/EmrApi";
 
-const OpenLinkButton = ({ url, className, children, newWindow = true }) => {
+const OpenLinkButton = ({
+    url,
+    className,
+    children,
+    title,
+    newWindow = true,
+}) => {
     return (
         <button
             className={className}
             onClick={() => window.open(url, "_blank")}
+            title={title}
         >
             {children}
         </button>
@@ -26,7 +33,6 @@ const RadiologyStudyItem = ({
 
     const handleDownloadStudy = () => {
         (async (studyUrl) => {
-            alert("Will start download");
             chrome.runtime.sendMessage({
                 action: "downloadStudy",
                 studyUrl: getRadiologyStudyUrl(study),
@@ -51,25 +57,28 @@ const RadiologyStudyItem = ({
 
             <div className="flex">
                 <OpenLinkButton
+                    title={"Open Study"}
                     url={`${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
                         study
                     )}`}
                     className="hover:bg-gray-400 px-1.5 py-1"
                 >
-                    <PanelsTopLeftIcon width={16} height={16} />
-                </OpenLinkButton>
-                <OpenLinkButton
-                    url={`dldicom:${getRadiologyStudyUrl(study)}`}
-                    className="hover:bg-gray-400 px-1.5 py-1"
-                >
-                    <MonitorDownIcon width={16} height={16} />
+                    <EyeIcon width={16} height={16} />
                 </OpenLinkButton>
                 <button
+                    title="Download Study"
                     className="hover:bg-gray-400 px-1.5 py-1"
                     onClick={handleDownloadStudy}
                 >
                     <DownloadIcon width={16} height={16} />
                 </button>
+                <OpenLinkButton
+                    title={"Download Study: External"}
+                    url={`dldicom:${getRadiologyStudyUrl(study)}`}
+                    className="hover:bg-gray-400 px-1.5 py-1"
+                >
+                    <MonitorDownIcon width={16} height={16} />
+                </OpenLinkButton>
             </div>
         </li>
     );

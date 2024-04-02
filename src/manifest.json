@@ -33,6 +33,7 @@
     },
     "permissions": [
         "tabs",
-        "downloads"
+        "downloads",
+        "downloads.ui"
     ]
 }

@@ -8,7 +8,8 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     mode: 'production',
     entry: {
-        popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx')
+        popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
+        downloader: path.join(__dirname, 'src', 'pages', 'Downloader', 'index.jsx')
     },
     output: {
         filename: '[name].bundle.js',
@@ -71,16 +72,16 @@ module.exports = {
                     to: path.join(__dirname, 'build'),
                     force: true
                 },
-                {
-                    from: "src/scripts/downloader.js",
-                    to: path.join(__dirname, 'build'),
-                    force: true
-                },
-                {
-                    from: "src/scripts/downloader.html",
-                    to: path.join(__dirname, 'build'),
-                    force: true
-                },
+                // {
+                //     from: "src/scripts/downloader.js",
+                //     to: path.join(__dirname, 'build'),
+                //     force: true
+                // },
+                // {
+                //     from: "src/scripts/downloader.html",
+                //     to: path.join(__dirname, 'build'),
+                //     force: true
+                // },
                 {
                     from: "src/images/icon.svg",
                     to: path.join(__dirname, 'build', 'images'),
@@ -112,6 +113,12 @@ module.exports = {
             template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
             filename: 'popup.html',
             chunks: ['popup'],
+            cache: false,
+        }),
+        new HtmlWebpackPlugin({
+            template: path.join(__dirname, 'src', 'pages', 'Downloader', 'index.html'),
+            filename: 'downloader.html',
+            chunks: ['downloader'],
             cache: false,
         }),
         new MiniCssExtractPlugin({

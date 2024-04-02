@@ -11,6 +11,8 @@ const ZipPlugin = require('zip-webpack-plugin');
 
 const packageInfo = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
 
+console.log("Production build")
+
 config.plugins = (config.plugins || []).concat(
     new ZipPlugin({
         filename: `${packageInfo.name}-${packageInfo.version}.zip`,
@@ -19,5 +21,9 @@ config.plugins = (config.plugins || []).concat(
 );
 
 webpack(config, function (err) {
-    if (err) throw err;
+    if (err) {
+        console.log(err);
+        throw err;
+    }
+    console.log("Complete");
 });

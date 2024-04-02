@@ -23,7 +23,7 @@ class DownloadWorker {
                 url: url,
                 filename: filename,
                 conflictAction: conflictAction,
-                saveAs: false
+                saveAs: false,
             },
             (id) => {
                 this.downloadStarting = false;
@@ -40,7 +40,9 @@ class DownloadWorker {
             return "not_started";
         }
         try {
-            const [thisDownload] = await chrome.downloads.search({ id: this.downloadId });
+            const [thisDownload] = await chrome.downloads.search({
+                id: this.downloadId,
+            });
             return thisDownload.state;
         } catch (error) {
             return "not_found";
@@ -61,13 +63,13 @@ class DownloadWorker {
             chrome.downloads.erase({ id: this.downloadId });
             chrome.downloads.cancel(this.downloadId, () => {
                 this.downloadId = null;
-            })
+            });
         }
         if (this.downloadIdToOpen !== null) {
             chrome.downloads.erase({ id: this.downloadIdToOpen });
             chrome.downloads.cancel(this.downloadIdToOpen, () => {
                 this.downloadIdToOpen = null;
-            })
+            });
         }
     }
 
@@ -107,7 +109,7 @@ class Downloader {
         this.workers = [];
         const workerCount = 10;
         for (let i = 0; i < workerCount; i++) {
-            this.workers.push(new DownloadWorker())
+            this.workers.push(new DownloadWorker());
         }
 
         this.totalCount = this.fileList.length;
@@ -123,7 +125,7 @@ class Downloader {
         this.totalCount = this.fileList.length;
 
         chrome.downloads.setUiOptions({
-            enabled: false
+            enabled: false,
         });
 
         this.status = "in_progress";
@@ -135,7 +137,7 @@ class Downloader {
         if (this.totalCount == 0) {
             return 0;
         }
-        return Math.round(((this.getCompletedCount()) * 100) / this.totalCount);
+        return Math.round((this.getCompletedCount() * 100) / this.totalCount);
     }
 
     getCompletedCount() {
@@ -160,13 +162,13 @@ class Downloader {
     show() {
         this.workers.forEach((worker) => {
             worker.show();
-        })
+        });
     }
 
     cancel() {
         this.workers.forEach((worker) => {
             worker.cancel();
-        })
+        });
     }
 
     async poll() {
@@ -178,20 +180,21 @@ class Downloader {
             if (status === "complete") {
                 this.complete.push({
                     url: worker.url,
-                    filename: worker.filename
-                })
+                    filename: worker.filename,
+                });
             }
             if (status === "interrupted") {
                 this.interrupted.push({
                     url: worker.url,
-                    filename: worker.filename
-                })
+                    filename: worker.filename,
+                });
             }
-            if (status === "complete" ||
+            if (
+                status === "complete" ||
                 status === "interrupted" ||
                 status === "not_started" ||
-                status === "not_found") {
-
+                status === "not_found"
+            ) {
                 if (this.fileList.length < 1) {
                     return;
                 }
@@ -202,19 +205,19 @@ class Downloader {
                     worker.startDownload(
                         nextDownload.url,
                         nextDownload.filename,
-                        'overwrite',
+                        "overwrite",
                         true
-                    )
-                    return
+                    );
+                    return;
                 }
 
                 worker.startDownload(
                     nextDownload.url,
                     nextDownload.filename,
-                    'overwrite'
-                )
+                    "overwrite"
+                );
             }
-        })
+        });
 
         if (this.fileList.length < 1) {
             if (this.getCompletedCount() == this.getTotalCount()) {
@@ -224,22 +227,19 @@ class Downloader {
         }
 
         setTimeout(() => {
-            this.poll()
+            this.poll();
         }, 100);
     }
-
 }
 
 const downloader = new Downloader();
 var downloadStatus = "starting";
 
-chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        if (request.action === "downloadStudyWindow") {
-            downloadStudy(request.studyUrl);
-        }
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.action === "downloadStudyWindow") {
+        downloadStudy(request.studyUrl);
     }
-)
+});
 
 document.addEventListener("DOMContentLoaded", function () {
     monitor();
@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
     cancelButton.onclick = () => {
         downloader.cancel();
         window.close();
-    }
+    };
 });
 
 async function downloadStudy(studyUrl) {
@@ -281,11 +281,11 @@ async function downloadStudy(studyUrl) {
 }
 
 function getDicomStudyInstanceId(fileTree) {
-    return fileTree['studies'][0]['StudyInstanceUID'];
+    return fileTree["studies"][0]["StudyInstanceUID"];
 }
 
 function getDicomPatientName(fileTree) {
-    return fileTree['studies'][0]['PatientName'];
+    return fileTree["studies"][0]["PatientName"];
 }
 
 function getDownloadFileName(patientName, studyId, url) {
@@ -297,7 +297,7 @@ function getDownloadFileName(patientName, studyId, url) {
 
 async function getFileTree(studyUrl) {
     try {
-        const response = await fetch(studyUrl)
+        const response = await fetch(studyUrl);
         if (!response.ok) {
             console.log("Could not get file tree");
             return null;
@@ -321,15 +321,19 @@ function flattenFileTree(fileTree) {
         study.series.forEach((series) => {
             const instanceUrls = series.instances.map((instance) => {
                 const url = instance.url.replace("dicomweb:", "");
-                const downloadFilename = getDownloadFileName(patientName, studyId, url);
+                const downloadFilename = getDownloadFileName(
+                    patientName,
+                    studyId,
+                    url
+                );
                 return {
-                    "url": url,
-                    "filename": downloadFilename
-                }
-            })
+                    url: url,
+                    filename: downloadFilename,
+                };
+            });
             fileList.push(...instanceUrls);
-        })
-    })
+        });
+    });
 
     return fileList;
 }
@@ -341,12 +345,14 @@ async function monitor() {
     progressElement.style.width = downloader.getCompletedPercentage() + "%";
 
     if (downloadStatus === "failed") {
-        statusElem.innerText = "Download failed"
+        statusElem.innerText = "Download failed";
         return;
     }
 
     if (downloader.getStatus() === "complete") {
-        statusElem.innerText = `Downloads complete, ${downloader.getCompletedCount() - downloader.getFailedCount()} of ${downloader.getTotalCount()} files downloaded`;
+        statusElem.innerText = `Downloads complete, ${
+            downloader.getCompletedCount() - downloader.getFailedCount()
+        } of ${downloader.getTotalCount()} files downloaded`;
         if (downloader.getFailedCount() > 0) {
             const errorElem = document.getElementById("error");
             errorElem.innerText = `failed to download ${downloader.getFailedCount()} files`;
@@ -356,16 +362,18 @@ async function monitor() {
         openButton.onclick = () => {
             downloader.show();
             window.close();
-        }
+        };
         const cancelButton = document.getElementById("cancel-button");
         cancelButton.innerText = "Close";
         return;
     }
 
     if (downloader.getTotalCount() < 1) {
-        statusElem.innerText = "Starting..."
+        statusElem.innerText = "Starting...";
     } else {
-        statusElem.innerText = `${downloader.getCompletedCount() - downloader.getFailedCount()} of ${downloader.getTotalCount()} files downloaded`;
+        statusElem.innerText = `${
+            downloader.getCompletedCount() - downloader.getFailedCount()
+        } of ${downloader.getTotalCount()} files downloaded`;
         if (downloader.getFailedCount() > 0) {
             const errorElem = document.getElementById("error");
             errorElem.innerText = `failed to download ${downloader.getFailedCount()} files`;
@@ -374,5 +382,5 @@ async function monitor() {
 
     setTimeout(() => {
         monitor();
-    }, 100)
+    }, 100);
 }
