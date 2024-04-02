@@ -72,6 +72,16 @@ module.exports = {
                     force: true
                 },
                 {
+                    from: "src/scripts/downloader.js",
+                    to: path.join(__dirname, 'build'),
+                    force: true
+                },
+                {
+                    from: "src/scripts/downloader.html",
+                    to: path.join(__dirname, 'build'),
+                    force: true
+                },
+                {
                     from: "src/images/icon.svg",
                     to: path.join(__dirname, 'build', 'images'),
                     force: true

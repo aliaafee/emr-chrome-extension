@@ -1,5 +1,5 @@
 import React from "react";
-import { PanelsTopLeftIcon, DownloadIcon } from "lucide-react";
+import { PanelsTopLeftIcon, DownloadIcon, MonitorDownIcon } from "lucide-react";
 
 import { viewerUrl, getRadiologyStudyUrl } from "../../../api/EmrApi";
 
@@ -20,20 +20,19 @@ const RadiologyStudyItem = ({
     selected = false,
     onSelected = () => {},
 }) => {
-    // const fileServerUrl = "http://10.10.10.197:4000";
-    // const viewerUrl = "http://10.10.10.91:3000";
-
     const handleSelect = () => {
         onSelected(study);
     };
 
-    // const getUrl = () => {
-    //     const studyDate = new Date(study.studyDate);
-
-    //     return `${fileServerUrl}/zfpviewer/api/download?file=/zfp/${studyDate.getFullYear()}/${
-    //         studyDate.getMonth() + 1
-    //     }/${studyDate.getDate()}/${study.studyUid}.json`;
-    // };
+    const handleDownloadStudy = () => {
+        (async (studyUrl) => {
+            alert("Will start download");
+            chrome.runtime.sendMessage({
+                action: "downloadStudy",
+                studyUrl: getRadiologyStudyUrl(study),
+            });
+        })();
+    };
 
     return (
         <li
@@ -63,8 +62,14 @@ const RadiologyStudyItem = ({
                     url={`dldicom:${getRadiologyStudyUrl(study)}`}
                     className="hover:bg-gray-400 px-1.5 py-1"
                 >
-                    <DownloadIcon width={16} height={16} />
+                    <MonitorDownIcon width={16} height={16} />
                 </OpenLinkButton>
+                <button
+                    className="hover:bg-gray-400 px-1.5 py-1"
+                    onClick={handleDownloadStudy}
+                >
+                    <DownloadIcon width={16} height={16} />
+                </button>
             </div>
         </li>
     );

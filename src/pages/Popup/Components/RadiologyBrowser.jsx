@@ -119,7 +119,7 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
 
     return (
         <div className="flex flex-col overflow-auto">
-            <div className="text-lg">{patientId}</div>
+            <div className="text-lg">Radiology Studies {patientId}</div>
             <ToolBar selectedStudies={selectedStudies} />
             <div className="w-full flex flex-col overflow-auto">
                 <ul>
