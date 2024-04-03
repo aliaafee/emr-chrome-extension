@@ -58,30 +58,9 @@ async function downloadStudy(studyUrl) {
     }
 
     chrome.windows.create({
-        url: chrome.runtime.getURL("downloader.html"),
+        url: chrome.runtime.getURL(`downloader.html?studyurl=${encodeURIComponent(studyUrl)}`),
         width: 400,
         height: 170,
         type: "popup"
-    }, (window) => {
-        console.log(window);
-        downloadUrlToWindows[studyUrl] = window.id;
-        windowsToDownloadUrls[window.id] = studyUrl;
-        startDownloading(window.tabs[0].id, studyUrl);
-    });
-}
-
-
-async function startDownloading(tabid, studyUrl) {
-    // Repeatedly checks to see if the tab is loaded and
-    // then send the message
-    const tab = await chrome.tabs.get(tabid);
-
-    if (tab.status === "complete") {
-        chrome.tabs.sendMessage(tabid, {"action": "downloadStudyWindow", "studyUrl": studyUrl})
-        return;
-    }
-
-    setTimeout( async ()=> {
-        await startDownloading(tabid, studyUrl)
-    }, 100)
+    }, (window) => {});
 }

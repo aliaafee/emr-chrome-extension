@@ -3,14 +3,10 @@ import Downloader from "./downloader";
 const downloader = new Downloader();
 var downloadStatus = "starting";
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.action === "downloadStudyWindow") {
-        downloadStudy(request.studyUrl);
-    }
-});
-
 document.addEventListener("DOMContentLoaded", function () {
     monitor();
+
+    downloadStudy(getStudyUrl());
 
     const cancelButton = document.getElementById("cancel-button");
     cancelButton.onclick = () => {
@@ -18,6 +14,20 @@ document.addEventListener("DOMContentLoaded", function () {
         window.close();
     };
 });
+
+function getStudyUrl() {
+    const queryString = window.location.search;
+    console.log(queryString);
+    const urlParams = new URLSearchParams(queryString);
+
+    console.log(urlParams.has("studyurl"));
+    if (urlParams.has("studyurl")) {
+        const studyUrl = urlParams.get("studyurl");
+        return studyUrl;
+    }
+
+    return null;
+}
 
 async function downloadStudy(studyUrl) {
     const statusElem = document.getElementById("status");
