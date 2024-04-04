@@ -1,3 +1,8 @@
+import {
+    flattenDicomFileTree,
+    getDicomFileTree,
+    getDicomPatientName,
+} from "../../api/emr-api";
 import Downloader from "./downloader";
 
 const downloader = new Downloader();
@@ -34,7 +39,7 @@ async function downloadStudy(studyUrl) {
     const headerElem = document.getElementById("header");
 
     try {
-        const fileTree = await getFileTree(studyUrl);
+        const fileTree = await getDicomFileTree(studyUrl);
 
         console.log(fileTree);
 
@@ -44,7 +49,7 @@ async function downloadStudy(studyUrl) {
             return;
         }
 
-        const fileList = flattenFileTree(fileTree);
+        const fileList = flattenDicomFileTree(fileTree);
 
         const patientName = getDicomPatientName(fileTree);
 
@@ -56,64 +61,6 @@ async function downloadStudy(studyUrl) {
         downloadStatus = "failed";
         return;
     }
-}
-
-function getDicomStudyInstanceId(fileTree) {
-    return fileTree["studies"][0]["StudyInstanceUID"];
-}
-
-function getDicomPatientName(fileTree) {
-    return fileTree["studies"][0]["PatientName"];
-}
-
-function getDownloadFileName(patientName, studyId, url) {
-    const parts = url.split("file=");
-    const fileName = parts[1].replace(/\//g, "");
-
-    return `${patientName}-${studyId}/${fileName}.dcm`;
-}
-
-async function getFileTree(studyUrl) {
-    try {
-        const response = await fetch(studyUrl);
-        if (!response.ok) {
-            console.log("Could not get file tree");
-            return null;
-        }
-
-        const fileTree = await response.json();
-
-        return fileTree;
-    } catch (error) {
-        return null;
-    }
-}
-
-function flattenFileTree(fileTree) {
-    const studyId = getDicomStudyInstanceId(fileTree);
-    const patientName = getDicomPatientName(fileTree);
-
-    const fileList = [];
-
-    fileTree.studies.forEach((study) => {
-        study.series.forEach((series) => {
-            const instanceUrls = series.instances.map((instance) => {
-                const url = instance.url.replace("dicomweb:", "");
-                const downloadFilename = getDownloadFileName(
-                    patientName,
-                    studyId,
-                    url
-                );
-                return {
-                    url: url,
-                    filename: downloadFilename,
-                };
-            });
-            fileList.push(...instanceUrls);
-        });
-    });
-
-    return fileList;
 }
 
 async function monitor() {

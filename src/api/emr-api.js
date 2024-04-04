@@ -74,13 +74,74 @@ const getRadiologyStudyUrl = (study) => {
     }/${studyDate.getDate()}/${study.studyUid}.json`;
 };
 
+function getDicomStudyInstanceId(fileTree) {
+    return fileTree["studies"][0]["StudyInstanceUID"];
+}
+
+function getDicomPatientName(fileTree) {
+    return fileTree["studies"][0]["PatientName"];
+}
+
+function getDownloadFileName(patientName, studyId, url) {
+    const parts = url.split("file=");
+    const fileName = parts[1].replace(/\//g, "");
+
+    return `${patientName}-${studyId}/${fileName}.dcm`;
+}
+
+async function getDicomFileTree(studyUrl) {
+    try {
+        const response = await fetch(studyUrl);
+        if (!response.ok) {
+            console.log("Could not get file tree");
+            return null;
+        }
+
+        const fileTree = await response.json();
+
+        return fileTree;
+    } catch (error) {
+        return null;
+    }
+}
+
+function flattenDicomFileTree(fileTree) {
+    const studyId = getDicomStudyInstanceId(fileTree);
+    const patientName = getDicomPatientName(fileTree);
+
+    const fileList = [];
+
+    fileTree.studies.forEach((study) => {
+        study.series.forEach((series) => {
+            const instanceUrls = series.instances.map((instance) => {
+                const url = instance.url.replace("dicomweb:", "");
+                const downloadFilename = getDownloadFileName(
+                    patientName,
+                    studyId,
+                    url
+                );
+                return {
+                    url: url,
+                    filename: downloadFilename,
+                };
+            });
+            fileList.push(...instanceUrls);
+        });
+    });
+
+    return fileList;
+}
+
 export {
     getActiveTab,
     getCurrentPatientId,
     getResource,
     viewerUrl,
     fileServerUrl,
-    getRadiologyStudyUrl
+    getRadiologyStudyUrl,
+    getDicomFileTree,
+    flattenDicomFileTree,
+    getDicomPatientName
 };
 
 
