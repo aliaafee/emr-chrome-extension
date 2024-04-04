@@ -7,46 +7,9 @@ import RadiologyStudyItem from "./radiology-studyitem";
 import { GitCompareArrows } from "lucide-react";
 import { JSONTree } from "react-json-tree";
 import { viewerUrl, getRadiologyStudyUrl } from "../../../api/emr-api";
+import { ToolBar, ToolBarButton } from "./toolbar";
 
 import "../../../styles.css";
-
-const ToolBar = ({ selectedStudies }) => {
-    const handleCompareStudies = () => {
-        if (selectedStudies.length !== 2) return;
-        const studyAUrl = `${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
-            selectedStudies[0]
-        )}`;
-        const studyBUrl = `${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
-            selectedStudies[1]
-        )}`;
-        const win = window.open(
-            "",
-            "Compare Studies",
-            "toolbar=no,location=no,directories=no,status=no,menubar=no"
-        );
-        win.document.body.style = "padding: 0; margin: 0;";
-        win.document.body.innerHTML = `<div style="width: 100%; height: 100%; display: flex;"><iframe src="${studyAUrl}" style="flex-grow:1;">A</iframe><iframe src="${studyBUrl}" style="flex-grow:1;">B</iframe></div>`;
-    };
-    return (
-        <div className="flex bg-gray-400 min-h-[30px]">
-            <button
-                className="hover:bg-gray-500 px-1.5 py-1 disabled:text-gray-600 flex justify-center items-center gap-0.5"
-                disabled={selectedStudies.length !== 2}
-                title={`Compare Studies ${
-                    selectedStudies.length !== 2
-                        ? ": Select two studies to compare"
-                        : ""
-                }`}
-                onClick={handleCompareStudies}
-            >
-                <div>
-                    <GitCompareArrows className="" width={16} height={16} />
-                </div>
-                <div>Compare Studies</div>
-            </button>
-        </div>
-    );
-};
 
 export default function RadiologyBrowser({ patientId, targetTabId = null }) {
     const [loading, setLoading] = useState(false);
@@ -90,6 +53,23 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
         setSelectedStudies([selectedStudies.at(-1), study]);
     };
 
+    const handleCompareStudies = () => {
+        if (selectedStudies.length !== 2) return;
+        const studyAUrl = `${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
+            selectedStudies[0]
+        )}`;
+        const studyBUrl = `${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
+            selectedStudies[1]
+        )}`;
+        const win = window.open(
+            "",
+            "Compare Studies",
+            "toolbar=no,location=no,directories=no,status=no,menubar=no"
+        );
+        win.document.body.style = "padding: 0; margin: 0;";
+        win.document.body.innerHTML = `<div style="width: 100%; height: 100%; display: flex;"><iframe src="${studyAUrl}" style="flex-grow:1;">A</iframe><iframe src="${studyBUrl}" style="flex-grow:1;">B</iframe></div>`;
+    };
+
     if (loading) {
         return (
             <div className="w-full h-full flex">
@@ -122,8 +102,21 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
 
     return (
         <div className="flex flex-col overflow-auto">
-            <div className="text-lg">Radiology Studies {patientId}</div>
-            <ToolBar selectedStudies={selectedStudies} />
+            <div className="text-lg">Radiology Studies</div>
+            <ToolBar>
+                <ToolBarButton
+                    title={`Compare Studies ${
+                        selectedStudies.length !== 2
+                            ? ": Select two studies to compare"
+                            : ""
+                    }`}
+                    disabled={selectedStudies.length !== 2}
+                    onClick={handleCompareStudies}
+                >
+                    <GitCompareArrows className="" width={16} height={16} />
+                    <div>Compare</div>
+                </ToolBarButton>
+            </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
                 <ul>
                     {radiologyStudies
