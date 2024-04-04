@@ -93,15 +93,19 @@ async function getDicomFileTree(studyUrl) {
     try {
         const response = await fetch(studyUrl);
         if (!response.ok) {
-            console.log("Could not get file tree");
-            return null;
+            throw new Error(
+                `Failed to get study details, ${response.status} ${response.statusText}`,
+                {
+                    cause: response
+                }
+            )
         }
 
         const fileTree = await response.json();
 
         return fileTree;
     } catch (error) {
-        return null;
+        throw new Error(error.message);
     }
 }
 

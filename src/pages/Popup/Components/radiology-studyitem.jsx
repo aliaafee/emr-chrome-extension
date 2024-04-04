@@ -1,4 +1,4 @@
-import React, { useDebugValue, useState } from "react";
+import React, { useState } from "react";
 import { EyeIcon, DownloadIcon, MonitorDownIcon } from "lucide-react";
 
 import {
@@ -37,13 +37,16 @@ const StudyDetail = ({ fileTree, loading, error }) => {
         return <></>;
     }
     return (
-        <ul className="bg-white pl-8 pb-2">
-            {fileTree.studies.map((study) =>
-                study.series.map((series) => (
-                    <li>{series.SeriesDescription}</li>
-                ))
-            )}
-        </ul>
+        <>
+            <ul className="bg-white pl-8 pb-2">
+                {fileTree.studies.map((study) =>
+                    study.series.map((series) => (
+                        <li>{series.SeriesDescription}</li>
+                    ))
+                )}
+            </ul>
+            {/* <JSONTree data={fileTree} /> */}
+        </>
     );
 };
 
@@ -71,12 +74,16 @@ const RadiologyStudyItem = ({
     };
 
     const handleShowDetail = () => {
-        setDetailError(null);
+        if (detailError) {
+            setDetailError(null);
+            return;
+        }
         if (fileTree) {
             setFileTree(null);
             return;
         }
         (async () => {
+            setDetailError(null);
             setLoadingDetail(true);
             try {
                 setFileTree(
