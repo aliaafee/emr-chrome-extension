@@ -178,7 +178,7 @@ export default function LabResultBrowser({
         return (
             <div className="w-full h-full flex">
                 <ErrorMessage
-                    title="No "
+                    title="No Lab Results"
                     message={!patientId && "No Patient Selected"}
                 />
             </div>
