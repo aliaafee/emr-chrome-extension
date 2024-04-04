@@ -1,7 +1,7 @@
 import React from "react";
 import { EyeIcon, DownloadIcon, MonitorDownIcon } from "lucide-react";
 
-import { viewerUrl, getRadiologyStudyUrl } from "../../../api/EmrApi";
+import { viewerUrl, getRadiologyStudyUrl } from "../../../api/emr-api";
 
 const OpenLinkButton = ({
     url,

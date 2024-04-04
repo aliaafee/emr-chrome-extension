@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-import { getActiveTab, getCurrentPatientId } from "../../../api/EmrApi";
-import LabResultBrowser from "./LabResultBrowser";
-import ErrorMessage from "./ErrorMessage";
-import LoadingSpinner from "./LoadingSpinner";
-
 import "../../../styles.css";
-import RadiologyBrowser from "./RadiologyBrowser";
+
+import { getActiveTab, getCurrentPatientId } from "../../../api/emr-api";
+import LabResultBrowser from "./labresult-browser";
+import ErrorMessage from "./error-message";
+import LoadingSpinner from "./loading-spinner";
+import RadiologyBrowser from "./radiology-browser";
+import { ExternalLink } from "lucide-react";
+import { ToolBar, ToolBarButton } from "./toolbar";
 
 async function getTargetTabId() {
     const queryString = window.location.search;
@@ -22,32 +24,6 @@ async function getTargetTabId() {
     }
 
     return (await getActiveTab()).id;
-}
-
-function ToolBar({ targetTabId }) {
-    const onNewWindow = () => {
-        const url = targetTabId
-            ? `popup.html?tabid=${targetTabId}`
-            : `popup.html`;
-
-        chrome.windows.create(
-            {
-                url: chrome.runtime.getURL(url),
-                type: "popup",
-            },
-            (window) => {}
-        );
-    };
-
-    return (
-        <div className="flex justify-end grow">
-            <button
-                onClick={onNewWindow}
-                title="Open New Window"
-                className="pop-out bg-black"
-            ></button>
-        </div>
-    );
 }
 
 export default function App() {
@@ -71,6 +47,20 @@ export default function App() {
         })();
     }, []);
 
+    const handleNewWindow = () => {
+        const url = targetTabId
+            ? `popup.html?tabid=${targetTabId}`
+            : `popup.html`;
+
+        chrome.windows.create(
+            {
+                url: chrome.runtime.getURL(url),
+                type: "popup",
+            },
+            (window) => {}
+        );
+    };
+
     if (loading) {
         return (
             <div className="w-full h-full flex">
@@ -82,18 +72,23 @@ export default function App() {
     if (error) {
         return (
             <div className="w-full h-full flex">
-                <ErrorMessage title="Error" message={error.message} />
+                <ErrorMessage title="-Error" message={error.message} />
             </div>
         );
     }
 
     return (
         <div className="w-full h-full flex flex-col">
-            <div className="flex">
-                <div className="grow">
-                    tabId: {targetTabId} patientId: {patientId}
-                </div>
-                <ToolBar targetTabId={targetTabId} />
+            <div className="flex items-center border-b-2 border-gray-300">
+                <div className="grow p-1.5">PatientId: {patientId}</div>
+                <ToolBar>
+                    <ToolBarButton
+                        title="Open New Window"
+                        onClick={handleNewWindow}
+                    >
+                        <ExternalLink width={16} height={16} />
+                    </ToolBarButton>
+                </ToolBar>
             </div>
 
             {/* <LabResultBrowser patientId={patientId} targetTabId={targetTabId} /> */}

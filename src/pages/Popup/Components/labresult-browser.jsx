@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-import { getResource } from "../../../api/EmrApi";
-import ErrorMessage from "./ErrorMessage";
-import LoadingSpinner from "./LoadingSpinner";
+import { getResource } from "../../../api/emr-api";
+import ErrorMessage from "./error-message";
+import LoadingSpinner from "./loading-spinner";
 import { JSONTree } from "react-json-tree";
 import dayjs from "dayjs";
 
@@ -166,7 +166,10 @@ export default function LabResultBrowser({
     if (error) {
         return (
             <div className="w-full h-full flex">
-                <ErrorMessage title="Error" message={error.message} />
+                <ErrorMessage
+                    title="Lab Result Browser Error"
+                    message={error.message}
+                />
             </div>
         );
     }
@@ -175,7 +178,7 @@ export default function LabResultBrowser({
         return (
             <div className="w-full h-full flex">
                 <ErrorMessage
-                    title="No Studies"
+                    title="No "
                     message={!patientId && "No Patient Selected"}
                 />
             </div>
@@ -186,7 +189,7 @@ export default function LabResultBrowser({
 
     return (
         <div className="w-full flex flex-col overflow-auto">
-            <div className="text-lg">Lab Results of {patientId}</div>
+            <div className="text-lg">Lab Results</div>
             <ul className="whitespace-pre-wrap overflow-auto">
                 {Object.entries(labResults).map(([key, result]) => (
                     <>
@@ -226,9 +229,9 @@ export default function LabResultBrowser({
                                 </div>
                             )}
                         </li>
-                        <li>
+                        {/* <li>
                             <JSONTree data={result} />
-                        </li>
+                        </li> */}
                     </>
                 ))}
             </ul>

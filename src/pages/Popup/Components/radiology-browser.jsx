@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { getResource } from "../../../api/EmrApi";
-import ErrorMessage from "./ErrorMessage";
-import LoadingSpinner from "./LoadingSpinner";
-import RadiologyStudyItem from "./RadiologyStudyItem";
+import { getResource } from "../../../api/emr-api";
+import ErrorMessage from "./error-message";
+import LoadingSpinner from "./loading-spinner";
+import RadiologyStudyItem from "./radiology-studyitem";
 import { GitCompareArrows } from "lucide-react";
 import { JSONTree } from "react-json-tree";
-import { viewerUrl, getRadiologyStudyUrl } from "../../../api/EmrApi";
+import { viewerUrl, getRadiologyStudyUrl } from "../../../api/emr-api";
 
 import "../../../styles.css";
 
@@ -101,7 +101,10 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
     if (error) {
         return (
             <div className="w-full h-full flex">
-                <ErrorMessage title="Error" message={error.message} />
+                <ErrorMessage
+                    title="Radiology Browser Error"
+                    message={error.message}
+                />
             </div>
         );
     }
@@ -110,7 +113,7 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
         return (
             <div className="w-full h-full flex">
                 <ErrorMessage
-                    title="No Studies"
+                    title="No Radiology Studies"
                     message={!patientId && "No Patient Selected"}
                 />
             </div>
