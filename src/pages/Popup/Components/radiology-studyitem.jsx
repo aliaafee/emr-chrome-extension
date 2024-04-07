@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { EyeIcon, DownloadIcon, MonitorDownIcon } from "lucide-react";
+import {
+    EyeIcon,
+    DownloadIcon,
+    MonitorDownIcon,
+    FileTextIcon,
+} from "lucide-react";
 
 import {
     viewerUrl,
@@ -45,7 +50,6 @@ const StudyDetail = ({ fileTree, loading, error }) => {
                     ))
                 )}
             </ul>
-            {/* <JSONTree data={fileTree} /> */}
         </>
     );
 };
@@ -118,6 +122,15 @@ const RadiologyStudyItem = ({
                 </div>
 
                 <div className="flex">
+                    {study.reportMode === 1 && (
+                        <OpenLinkButton
+                            title={"Download Report"}
+                            url={`${study.pacsUrl}/radReport?orderId=${study.id}`}
+                            className="hover:bg-gray-400 px-1.5 py-1"
+                        >
+                            <FileTextIcon width={16} height={16} />
+                        </OpenLinkButton>
+                    )}
                     <OpenLinkButton
                         title={"Open Study"}
                         url={`${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
