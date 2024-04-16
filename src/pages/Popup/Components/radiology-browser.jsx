@@ -67,6 +67,7 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
             "toolbar=no,location=no,directories=no,status=no,menubar=no"
         );
         win.document.body.style = "padding: 0; margin: 0;";
+        win.document.title = "Compare Radiology Studies";
         win.document.body.innerHTML = `<div style="width: 100%; height: 100%; display: flex;"><iframe src="${studyAUrl}" style="flex-grow:1;">A</iframe><iframe src="${studyBUrl}" style="flex-grow:1;">B</iframe></div>`;
     };
 

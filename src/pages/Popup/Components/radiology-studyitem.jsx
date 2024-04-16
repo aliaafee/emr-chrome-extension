@@ -56,7 +56,6 @@ const StudyDetail = ({ fileTree, loading, error }) => {
 
 const RadiologyStudyItem = ({
     study,
-    key,
     selected = false,
     onSelected = () => {},
 }) => {
@@ -102,10 +101,7 @@ const RadiologyStudyItem = ({
     };
 
     return (
-        <li
-            key={key}
-            className="flex flex-col bg-gray-200 odd:bg-gray-100 hover:bg-gray-300 "
-        >
+        <li className="flex flex-col bg-gray-200 odd:bg-gray-100 hover:bg-gray-300 ">
             <div className="flex min-h-[30px]">
                 <div className="flex grow gap-1.5 p-1.5 cursor-pointer ">
                     <input
