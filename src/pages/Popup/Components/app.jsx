@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import "../../../styles.css";
 
@@ -7,15 +7,17 @@ import LabResultBrowser from "./labresult-browser";
 import ErrorMessage from "./error-message";
 import LoadingSpinner from "./loading-spinner";
 import RadiologyBrowser from "./radiology-browser";
-import { ExternalLink } from "lucide-react";
+import { CopyPlusIcon, ExternalLink } from "lucide-react";
 import { ToolBar, ToolBarButton } from "./toolbar";
 
-async function getTargetTabId() {
+function getUrlParams() {
     const queryString = window.location.search;
-    console.log(queryString);
-    const urlParams = new URLSearchParams(queryString);
+    return new URLSearchParams(queryString);
+}
 
-    console.log(urlParams.has("tabid"));
+async function getTargetTabId() {
+    const urlParams = getUrlParams();
+
     if (urlParams.has("tabid")) {
         const tabId = Number(urlParams.get("tabid"));
         const tab = await chrome.tabs.get(tabId);
@@ -31,6 +33,7 @@ export default function App() {
     const [patientId, setPatientId] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const isPopUpWindw = useMemo(() => !getUrlParams().has("tabid"));
 
     useEffect(() => {
         (async () => {
@@ -59,6 +62,10 @@ export default function App() {
             },
             (window) => {}
         );
+
+        if (isPopUpWindw) {
+            window.close();
+        }
     };
 
     if (loading) {
@@ -82,12 +89,18 @@ export default function App() {
             <div className="flex items-center border-b-2 border-gray-300">
                 <div className="grow p-1.5">PatientId: {patientId}</div>
                 <ToolBar>
-                    <ToolBarButton
-                        title="Open New Window"
-                        onClick={handleNewWindow}
-                    >
-                        <ExternalLink width={16} height={16} />
-                    </ToolBarButton>
+                    {isPopUpWindw ? (
+                        <ToolBarButton title="Popout" onClick={handleNewWindow}>
+                            <ExternalLink width={16} height={16} />
+                        </ToolBarButton>
+                    ) : (
+                        <ToolBarButton
+                            title="New Window"
+                            onClick={handleNewWindow}
+                        >
+                            <CopyPlusIcon width={16} height={16} />
+                        </ToolBarButton>
+                    )}
                 </ToolBar>
             </div>
 
