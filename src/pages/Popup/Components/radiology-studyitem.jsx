@@ -77,10 +77,15 @@ const RadiologyStudyItem = ({
     };
 
     const handleShowDetail = () => {
+        if (!study.studyUid) {
+            return;
+        }
+
         if (detailError) {
             setDetailError(null);
             return;
         }
+
         if (fileTree) {
             setFileTree(null);
             return;
@@ -113,7 +118,7 @@ const RadiologyStudyItem = ({
                         {study.date}
                     </span>
                     <span className="grow" onClick={handleShowDetail}>
-                        {study.studyDescription}
+                        {study.serviceName}
                     </span>
                 </div>
 
@@ -127,29 +132,33 @@ const RadiologyStudyItem = ({
                             <FileTextIcon width={16} height={16} />
                         </OpenLinkButton>
                     )}
-                    <OpenLinkButton
-                        title={"Open Study"}
-                        url={`${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
-                            study
-                        )}`}
-                        className="hover:bg-gray-400 px-1.5 py-1"
-                    >
-                        <EyeIcon width={16} height={16} />
-                    </OpenLinkButton>
-                    <button
-                        title="Download Study"
-                        className="hover:bg-gray-400 px-1.5 py-1"
-                        onClick={handleDownloadStudy}
-                    >
-                        <DownloadIcon width={16} height={16} />
-                    </button>
-                    <OpenLinkButton
-                        title={"Download Study: External"}
-                        url={`dldicom:${getRadiologyStudyUrl(study)}`}
-                        className="hover:bg-gray-400 px-1.5 py-1"
-                    >
-                        <MonitorDownIcon width={16} height={16} />
-                    </OpenLinkButton>
+                    {!!study.studyUid && (
+                        <>
+                            <OpenLinkButton
+                                title={"Open Study"}
+                                url={`${viewerUrl}/viewer?url=${getRadiologyStudyUrl(
+                                    study
+                                )}`}
+                                className="hover:bg-gray-400 px-1.5 py-1"
+                            >
+                                <EyeIcon width={16} height={16} />
+                            </OpenLinkButton>
+                            <button
+                                title="Download Study"
+                                className="hover:bg-gray-400 px-1.5 py-1"
+                                onClick={handleDownloadStudy}
+                            >
+                                <DownloadIcon width={16} height={16} />
+                            </button>
+                            <OpenLinkButton
+                                title={"Download Study: External"}
+                                url={`dldicom:${getRadiologyStudyUrl(study)}`}
+                                className="hover:bg-gray-400 px-1.5 py-1"
+                            >
+                                <MonitorDownIcon width={16} height={16} />
+                            </OpenLinkButton>
+                        </>
+                    )}
                 </div>
             </div>
             <StudyDetail
@@ -157,6 +166,7 @@ const RadiologyStudyItem = ({
                 loading={loadingDetail}
                 error={detailError}
             />
+            {/* <JSONTree data={study} /> */}
         </li>
     );
 };

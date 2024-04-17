@@ -121,7 +121,7 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
             <div className="w-full flex flex-col overflow-auto">
                 <ul>
                     {radiologyStudies
-                        .filter((study) => !!study.studyDescription)
+                        // .filter((study) => !!study.studyDescription)
                         .map((study, index) => (
                             <RadiologyStudyItem
                                 study={study}
