@@ -6,6 +6,7 @@ const ToolBarButton = ({
     children,
     disabled,
     title,
+    active = false,
     onClick = () => {},
 }) => {
     return (
@@ -16,13 +17,18 @@ const ToolBarButton = ({
             className={twMerge(
                 className,
                 "hover:bg-gray-400 rounded-full flex items-center justify-center px-1.5 py-1.5 gap-1.5",
-                "disabled:text-gray-600"
+                "disabled:text-gray-600",
+                active && "bg-gray-300"
             )}
         >
             {children}
         </button>
     );
 };
+
+const ToolBarButtonLabel = ({ children }) => (
+    <div className="min-w-[50px] pr-2">{children}</div>
+);
 
 const ToolBar = ({ className, children }) => {
     return (
@@ -32,4 +38,4 @@ const ToolBar = ({ className, children }) => {
     );
 };
 
-export { ToolBar, ToolBarButton };
+export { ToolBar, ToolBarButton, ToolBarButtonLabel };

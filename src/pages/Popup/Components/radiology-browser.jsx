@@ -7,7 +7,7 @@ import RadiologyStudyItem from "./radiology-studyitem";
 import { GitCompareArrows } from "lucide-react";
 import { JSONTree } from "react-json-tree";
 import { viewerUrl, getRadiologyStudyUrl } from "../../../api/emr-api";
-import { ToolBar, ToolBarButton } from "./toolbar";
+import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 
 import "../../../styles.css";
 
@@ -115,7 +115,7 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
                     onClick={handleCompareStudies}
                 >
                     <GitCompareArrows className="" width={16} height={16} />
-                    <div>Compare</div>
+                    <ToolBarButtonLabel>Compare</ToolBarButtonLabel>
                 </ToolBarButton>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">

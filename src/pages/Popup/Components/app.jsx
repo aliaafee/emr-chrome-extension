@@ -13,7 +13,7 @@ import {
     FlaskConicalIcon,
     SkullIcon,
 } from "lucide-react";
-import { ToolBar, ToolBarButton } from "./toolbar";
+import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 
 function getUrlParams() {
     const queryString = window.location.search;
@@ -113,15 +113,19 @@ export default function App() {
                 <ToolBar className="">
                     <ToolBarButton
                         title="Radiology Browser"
+                        active={activeView === "radiology"}
                         onClick={() => handleSetActiveView("radiology")}
                     >
                         <SkullIcon width={16} height={16} />
+                        <ToolBarButtonLabel>Radiology</ToolBarButtonLabel>
                     </ToolBarButton>
                     <ToolBarButton
                         title="Lab Result Browser"
+                        active={activeView === "lab"}
                         onClick={() => handleSetActiveView("lab")}
                     >
                         <FlaskConicalIcon width={16} height={16} />
+                        <ToolBarButtonLabel>Lab Results</ToolBarButtonLabel>
                     </ToolBarButton>
                 </ToolBar>
                 <div className=" p-1.5">PatientId: {patientId}</div>
