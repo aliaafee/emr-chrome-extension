@@ -49,11 +49,6 @@ export default function App() {
             }
             setActiveView(data.activeView);
         });
-        // chrome.storage.local.get(["activeView"]).then((result) => {
-        //     console.log(result);
-        //     if (result) setActiveView(result);
-        //     handleSetActiveView("radiology");
-        // });
         (async () => {
             setLoading(true);
             try {
@@ -109,6 +104,7 @@ export default function App() {
 
     return (
         <div className="w-full h-full flex flex-col">
+            <div className=" p-1.5">PatientId: {patientId}</div>
             <div className="flex items-center justify-between border-b-2 border-gray-300">
                 <ToolBar className="">
                     <ToolBarButton
@@ -128,7 +124,6 @@ export default function App() {
                         <ToolBarButtonLabel>Lab Results</ToolBarButtonLabel>
                     </ToolBarButton>
                 </ToolBar>
-                <div className=" p-1.5">PatientId: {patientId}</div>
                 <ToolBar>
                     {isPopUpWindw ? (
                         <ToolBarButton title="Popout" onClick={handleNewWindow}>
