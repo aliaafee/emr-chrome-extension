@@ -16,7 +16,7 @@ const ToolBarButton = ({
             disabled={disabled}
             className={twMerge(
                 className,
-                "hover:bg-gray-400 rounded-full flex items-center justify-center px-1.5 py-1.5 gap-1.5",
+                "hover:bg-gray-400 rounded-md flex items-center justify-center px-1.5 py-1.5 gap-1.5",
                 "disabled:text-gray-600",
                 active && "bg-gray-300"
             )}
