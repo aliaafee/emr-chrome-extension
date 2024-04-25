@@ -11,6 +11,7 @@ import {
     CopyPlusIcon,
     ExternalLink,
     FlaskConicalIcon,
+    RefreshCwIcon,
     SkullIcon,
 } from "lucide-react";
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
@@ -81,6 +82,17 @@ export default function App() {
         }
     };
 
+    const handleSyncPatient = async () => {
+        setLoading(true);
+        try {
+            setPatientId(await getCurrentPatientId(targetTabId));
+        } catch (err) {
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSetActiveView = (name) => {
         setActiveView(name);
         chrome.storage.sync.set({ activeView: name });
@@ -104,7 +116,31 @@ export default function App() {
 
     return (
         <div className="w-full h-full flex flex-col">
-            <div className=" p-1.5">PatientId: {patientId}</div>
+            <div className="flex items-center justify-between">
+                <div className=" p-1.5">PatientId: {patientId}</div>
+                <ToolBar>
+                    {isPopUpWindw ? (
+                        <ToolBarButton title="Popout" onClick={handleNewWindow}>
+                            <ExternalLink width={16} height={16} />
+                        </ToolBarButton>
+                    ) : (
+                        <>
+                            <ToolBarButton
+                                title="Sync Patient"
+                                onClick={handleSyncPatient}
+                            >
+                                <RefreshCwIcon width={16} height={16} />
+                            </ToolBarButton>
+                            <ToolBarButton
+                                title="New Window"
+                                onClick={handleNewWindow}
+                            >
+                                <CopyPlusIcon width={16} height={16} />
+                            </ToolBarButton>
+                        </>
+                    )}
+                </ToolBar>
+            </div>
             <div className="flex items-center justify-between border-b-2 border-gray-300">
                 <ToolBar className="">
                     <ToolBarButton
@@ -123,20 +159,6 @@ export default function App() {
                         <FlaskConicalIcon width={16} height={16} />
                         <ToolBarButtonLabel>Lab Results</ToolBarButtonLabel>
                     </ToolBarButton>
-                </ToolBar>
-                <ToolBar>
-                    {isPopUpWindw ? (
-                        <ToolBarButton title="Popout" onClick={handleNewWindow}>
-                            <ExternalLink width={16} height={16} />
-                        </ToolBarButton>
-                    ) : (
-                        <ToolBarButton
-                            title="New Window"
-                            onClick={handleNewWindow}
-                        >
-                            <CopyPlusIcon width={16} height={16} />
-                        </ToolBarButton>
-                    )}
                 </ToolBar>
             </div>
 
