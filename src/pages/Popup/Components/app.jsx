@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import "../../../styles.css";
 
@@ -15,6 +15,7 @@ import {
     SkullIcon,
 } from "lucide-react";
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
+import { ActiveTabContext } from "./activetab-context";
 
 function getUrlParams() {
     const queryString = window.location.search;
@@ -35,7 +36,7 @@ async function getTargetTabId() {
 }
 
 export default function App() {
-    const [targetTabId, setTargetTabId] = useState(null);
+    const activeTab = useContext(ActiveTabContext);
     const [patientId, setPatientId] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -53,9 +54,7 @@ export default function App() {
         (async () => {
             setLoading(true);
             try {
-                const tabId = await getTargetTabId();
-                setTargetTabId(tabId);
-                setPatientId(await getCurrentPatientId(tabId));
+                setPatientId(await getCurrentPatientId(activeTab.id));
             } catch (err) {
                 setError(err);
             } finally {
@@ -65,8 +64,8 @@ export default function App() {
     }, []);
 
     const handleNewWindow = () => {
-        const url = targetTabId
-            ? `popup.html?tabid=${targetTabId}`
+        const url = !!activeTab.id
+            ? `popup.html?tabid=${activeTab.id}`
             : `popup.html`;
 
         chrome.windows.create(
@@ -85,7 +84,7 @@ export default function App() {
     const handleSyncPatient = async () => {
         setLoading(true);
         try {
-            setPatientId(await getCurrentPatientId(targetTabId));
+            setPatientId(await getCurrentPatientId(activeTab.id));
         } catch (err) {
             setError(err);
         } finally {
@@ -163,15 +162,9 @@ export default function App() {
             </div>
 
             {activeView == "lab" ? (
-                <LabResultBrowser
-                    patientId={patientId}
-                    targetTabId={targetTabId}
-                />
+                <LabResultBrowser patientId={patientId} />
             ) : (
-                <RadiologyBrowser
-                    patientId={patientId}
-                    targetTabId={targetTabId}
-                />
+                <RadiologyBrowser patientId={patientId} />
             )}
         </div>
     );

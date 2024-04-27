@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { getResource } from "../../../api/emr-api";
 import ErrorMessage from "./error-message";
@@ -10,8 +10,10 @@ import { viewerUrl, getRadiologyStudyUrl } from "../../../api/emr-api";
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 
 import "../../../styles.css";
+import { ActiveTabContext } from "./activetab-context";
 
-export default function RadiologyBrowser({ patientId, targetTabId = null }) {
+export default function RadiologyBrowser({ patientId }) {
+    const activeTab = useContext(ActiveTabContext);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [radiologyStudies, setRadiologyStudies] = useState(null);
@@ -28,7 +30,7 @@ export default function RadiologyBrowser({ patientId, targetTabId = null }) {
                 setRadiologyStudies(
                     await getResource(
                         `/live/df/pcc/widgets/radiologyServices/${patientId}/max?encounterId=`,
-                        targetTabId
+                        activeTab.id
                     )
                 );
             } catch (err) {

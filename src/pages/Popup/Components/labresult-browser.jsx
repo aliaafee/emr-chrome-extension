@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { getResource } from "../../../api/emr-api";
 import ErrorMessage from "./error-message";
@@ -7,6 +7,7 @@ import { JSONTree } from "react-json-tree";
 import dayjs from "dayjs";
 
 import "../../../styles.css";
+import { ActiveTabContext } from "./activetab-context";
 
 const sanitizeLabResults = (results) =>
     results.data.reduce(
@@ -120,11 +121,8 @@ const ResultCard = ({ result }) => (
     </div>
 );
 
-export default function LabResultBrowser({
-    patientId,
-    targetTabId = null,
-    datewiseCount = 10,
-}) {
+export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
+    const activeTab = useContext(ActiveTabContext);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [labResults, setLabResults] = useState(null);
@@ -142,7 +140,7 @@ export default function LabResultBrowser({
                         sanitizeLabResults(
                             await getResource(
                                 `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
-                                targetTabId
+                                activeTab.id
                             )
                         )
                     )
