@@ -10,12 +10,14 @@ import RadiologyBrowser from "./radiology-browser";
 import {
     CopyPlusIcon,
     ExternalLink,
+    FileTextIcon,
     FlaskConicalIcon,
     RefreshCwIcon,
     SkullIcon,
 } from "lucide-react";
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 import { ActiveTabContext } from "./activetab-context";
+import NotesBrowser from "./notes-browser";
 
 function getUrlParams() {
     const queryString = window.location.search;
@@ -158,14 +160,24 @@ export default function App() {
                         <FlaskConicalIcon width={16} height={16} />
                         <ToolBarButtonLabel>Lab Results</ToolBarButtonLabel>
                     </ToolBarButton>
+                    <ToolBarButton
+                        title="Notes Browser"
+                        active={activeView === "notes"}
+                        onClick={() => handleSetActiveView("notes")}
+                    >
+                        <FileTextIcon width={16} height={16} />
+                        <ToolBarButtonLabel>Notes</ToolBarButtonLabel>
+                    </ToolBarButton>
                 </ToolBar>
             </div>
 
-            {activeView == "lab" ? (
-                <LabResultBrowser patientId={patientId} />
-            ) : (
+            {activeView === "radiology" && (
                 <RadiologyBrowser patientId={patientId} />
             )}
+
+            {activeView === "lab" && <LabResultBrowser patientId={patientId} />}
+
+            {activeView === "notes" && <NotesBrowser patientId={patientId} />}
         </div>
     );
 }
