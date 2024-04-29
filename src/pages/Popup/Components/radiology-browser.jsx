@@ -105,7 +105,6 @@ export default function RadiologyBrowser({ patientId }) {
 
     return (
         <div className="flex flex-col overflow-auto">
-            <div className="text-lg">Radiology Studies</div>
             <ToolBar>
                 <ToolBarButton
                     title={`Compare Studies ${

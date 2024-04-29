@@ -187,7 +187,6 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
 
     return (
         <div className="w-full flex flex-col overflow-auto">
-            <div className="text-lg">Lab Results</div>
             <ul className="whitespace-pre-wrap overflow-auto">
                 {Object.entries(labResults).map(([key, result]) => (
                     <>

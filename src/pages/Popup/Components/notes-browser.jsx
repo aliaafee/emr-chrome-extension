@@ -9,6 +9,21 @@ import { ActiveTabContext } from "./activetab-context";
 import { HeartIcon } from "lucide-react";
 import { JSONTree } from "react-json-tree";
 
+const NoteItem = ({ note }) => {
+    return (
+        <li className="bg-gray-200 flex flex-col rounded-md">
+            <div className="flex p-2 gap-2 border-b-[1px] border-gray-300">
+                <div className="font-bold">{note.key}</div>
+                <div>{note.employee}</div>
+            </div>
+            <div className="whitespace-pre-wrap p-2">{note.note}</div>
+            <div className="text-gray-600 p-2 border-t-[1px] border-gray-300">
+                {note.date}
+            </div>
+        </li>
+    );
+};
+
 export default function NotesBrowser({ patientId }) {
     const activeTab = useContext(ActiveTabContext);
     const [loading, setLoading] = useState(false);
@@ -69,7 +84,6 @@ export default function NotesBrowser({ patientId }) {
 
     return (
         <div className="flex flex-col overflow-auto">
-            <div className="text-lg">Radiology Studies</div>
             <ToolBar>
                 <ToolBarButton title={`Do It`}>
                     <HeartIcon className="" width={16} height={16} />
@@ -77,6 +91,11 @@ export default function NotesBrowser({ patientId }) {
                 </ToolBarButton>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
+                <ul className="flex flex-col gap-2 p-2">
+                    {notes.data.map((note, index) => (
+                        <NoteItem note={note} />
+                    ))}
+                </ul>
                 <JSONTree data={notes} />
             </div>
         </div>
