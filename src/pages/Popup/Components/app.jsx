@@ -142,7 +142,7 @@ export default function App() {
                     )}
                 </ToolBar>
             </div>
-            <div className="flex items-center justify-between border-b-2 border-gray-300">
+            <div className="flex items-center justify-between border-b-[1px] border-gray-300">
                 <ToolBar className="">
                     <ToolBarButton
                         title="Radiology Browser"

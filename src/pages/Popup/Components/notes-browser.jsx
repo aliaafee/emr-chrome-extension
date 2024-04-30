@@ -9,16 +9,36 @@ import { ActiveTabContext } from "./activetab-context";
 import { HeartIcon } from "lucide-react";
 import { JSONTree } from "react-json-tree";
 
+const sectionCodes = {
+    DR_NOTES: "Doctors Note",
+    daily_nursing_notes: "Daily Nursing Note",
+    Physiotherapy_Notes: "Physiotherapy Note",
+    ADVICE: "Advice",
+    "Intra-Operative_Nursing_Care": "Intraoperative Nursing Care Note",
+    "Peri-Operative_Nursing_Care": "Preioperative Nursing Care Note",
+    post_op_Dr_note: "Postoperative Doctors Note",
+    Intra_op_Dr_note: "Intraoperative Doctors Note",
+};
+
+const sectionColors = {
+    DR_NOTES: "bg-blue-100",
+};
+
 const NoteItem = ({ note }) => {
     return (
-        <li className="bg-gray-200 flex flex-col rounded-md">
+        <li
+            className={
+                "bg-gray-200 flex flex-col rounded-md " +
+                sectionColors[note.sectionCode]
+            }
+        >
             <div className="flex p-2 gap-2 border-b-[1px] border-gray-300">
                 <div className="font-bold">{note.key}</div>
                 <div>{note.employee}</div>
             </div>
             <div className="whitespace-pre-wrap p-2">{note.note}</div>
             <div className="text-gray-600 p-2 border-t-[1px] border-gray-300">
-                {note.date}
+                {note.date} {note.sectionCode}
             </div>
         </li>
     );
