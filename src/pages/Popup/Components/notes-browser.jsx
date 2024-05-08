@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import "../../../styles.css";
 import { getResource } from "../../../api/emr-api";
@@ -6,8 +6,9 @@ import ErrorMessage from "./error-message";
 import LoadingSpinner from "./loading-spinner";
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 import { ActiveTabContext } from "./activetab-context";
-import { HeartIcon } from "lucide-react";
+import { FilterIcon, HeartIcon } from "lucide-react";
 import { JSONTree } from "react-json-tree";
+import MiniSearch from "minisearch";
 
 const sectionCodes = {
     DR_NOTES: "Doctors Note",
@@ -24,6 +25,17 @@ const sectionColors = {
     DR_NOTES: "bg-blue-100",
 };
 
+const sanitizeNotes = (notes) =>
+    notes.data.map((note, index) => ({
+        id: index,
+        employee: note.employee,
+        section: sectionCodes[note.sectionCode],
+        sectionCode: note.sectionCode,
+        date: note.date,
+        title: note.key,
+        text: note.note,
+    }));
+
 const NoteItem = ({ note }) => {
     return (
         <li
@@ -33,12 +45,12 @@ const NoteItem = ({ note }) => {
             }
         >
             <div className="flex p-2 gap-2 border-b-[1px] border-gray-300">
-                <div className="font-bold">{note.key}</div>
+                <div className="font-bold">{note.title}</div>
                 <div>{note.employee}</div>
             </div>
-            <div className="whitespace-pre-wrap p-2">{note.note}</div>
+            <div className="whitespace-pre-wrap p-2">{note.text}</div>
             <div className="text-gray-600 p-2 border-t-[1px] border-gray-300">
-                {note.date} {note.sectionCode}
+                {note.date}
             </div>
         </li>
     );
@@ -49,6 +61,33 @@ export default function NotesBrowser({ patientId }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [notes, setNotes] = useState(null);
+    const [searchText, setSearchText] = useState("");
+
+    const searchIndex = useMemo(() => {
+        if (!notes) {
+            return null;
+        }
+        let miniSearch = new MiniSearch({
+            fields: ["employee", "section", "date", "title", "text"], // fields to index for full-text search
+            storeFields: [
+                "employee",
+                "section",
+                "sectionCode",
+                "date",
+                "title",
+                "text",
+            ], // fields to return with search results
+        });
+        miniSearch.addAll(notes);
+        return miniSearch;
+    }, [notes]);
+
+    const fileterdNotes = useMemo(() => {
+        if (searchText == "") {
+            return notes;
+        }
+        return searchIndex.search(searchText);
+    }, [notes, searchText]);
 
     useEffect(() => {
         if (!patientId) {
@@ -59,9 +98,11 @@ export default function NotesBrowser({ patientId }) {
             setLoading(true);
             try {
                 setNotes(
-                    await getResource(
-                        `/live/df/pcc/widgets/clinicalNotes?encounterId=&patientId=${patientId}&size=max`,
-                        activeTab.id
+                    sanitizeNotes(
+                        await getResource(
+                            `/live/df/pcc/widgets/clinicalNotes?encounterId=&patientId=${patientId}&size=max`,
+                            activeTab.id
+                        )
                     )
                 );
             } catch (err) {
@@ -75,7 +116,7 @@ export default function NotesBrowser({ patientId }) {
     if (loading) {
         return (
             <div className="w-full h-full flex">
-                <LoadingSpinner message={"Loading Radiology Studies..."} />
+                <LoadingSpinner message={"Loading Notes..."} />
             </div>
         );
     }
@@ -104,19 +145,27 @@ export default function NotesBrowser({ patientId }) {
 
     return (
         <div className="flex flex-col overflow-auto">
-            <ToolBar>
-                <ToolBarButton title={`Do It`}>
+            <ToolBar className="bg-gray-200 border-b-[1px] border-gray-300">
+                {/* <ToolBarButton title={`Do It`}>
                     <HeartIcon className="" width={16} height={16} />
                     <ToolBarButtonLabel>Do It</ToolBarButtonLabel>
-                </ToolBarButton>
+                </ToolBarButton> */}
+                <div className="flex p-1.5 gap-1.5 items-center justify-center ">
+                    <FilterIcon size={16} />
+                    <input
+                        className="p-1.5 rounded-md"
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                    />
+                </div>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
                 <ul className="flex flex-col gap-2 p-2">
-                    {notes.data.map((note, index) => (
+                    {fileterdNotes.map((note, index) => (
                         <NoteItem note={note} />
                     ))}
                 </ul>
-                <JSONTree data={notes} />
+                {/* <JSONTree data={notes} /> */}
             </div>
         </div>
     );
