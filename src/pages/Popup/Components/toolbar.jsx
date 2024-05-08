@@ -10,18 +10,18 @@ const ToolBarButton = ({
     onClick = () => {},
 }) => {
     return (
-        <button
-            onClick={onClick}
-            title={title}
-            disabled={disabled}
-            className={twMerge(
-                className,
-                "hover:bg-gray-400 rounded-md flex items-center justify-center px-1.5 py-1.5 gap-1.5",
-                "disabled:text-gray-600",
-                active && "bg-gray-300"
-            )}
-        >
-            {children}
+        <button onClick={onClick} title={title} disabled={disabled}>
+            <div
+                className={twMerge(
+                    className,
+                    "hover:bg-gray-400 rounded-md flex items-center justify-center px-1.5 py-1.5 gap-1.5 m-0.5",
+                    "disabled:text-gray-600",
+                    active &&
+                        " bg-gray-200 border-b-2 border-b-black mb-0 rounded-b-none"
+                )}
+            >
+                {children}
+            </div>
         </button>
     );
 };
@@ -32,7 +32,7 @@ const ToolBarButtonLabel = ({ children }) => (
 
 const ToolBar = ({ className, children }) => {
     return (
-        <div className={twMerge(className, "flex items-center gap-1.5 p-0.5")}>
+        <div className={twMerge(className, "flex items-center")}>
             {children}
         </div>
     );
