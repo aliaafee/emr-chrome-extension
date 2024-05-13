@@ -158,7 +158,7 @@ export default function NotesBrowser({ patientId }) {
                     <HeartIcon className="" width={16} height={16} />
                     <ToolBarButtonLabel>Do It</ToolBarButtonLabel>
                 </ToolBarButton> */}
-                <div className="p-1.5 m-0.5 bg-white rounded-md w-[400px]">
+                <div className="p-1.5 m-0.5 bg-white rounded-md w-[400px] border-[1px] border-gray-400">
                     <div className="flex gap-1.5 w-full items-center justify-center">
                         <FilterIcon size={16} />
 
@@ -170,7 +170,7 @@ export default function NotesBrowser({ patientId }) {
                         />
                     </div>
                     {suggestions.length > 0 && (
-                        <ul className="absolute z-10 float-start max-h-[400px] bg-white border-[1px] border-gray-700 shadow-md overflow-y-auto ml-[-6px] mt-[9px] w-[400px] rounded-md flex flex-col ">
+                        <ul className="absolute z-10 float-start max-h-[400px] bg-white border-[1px] border-gray-400 shadow-md overflow-y-auto ml-[-6px] mt-[9px] w-[400px] rounded-md flex flex-col ">
                             {suggestions.map((item, index) => (
                                 <li
                                     className="pl-5 p-1.5 hover:bg-gray-400"
