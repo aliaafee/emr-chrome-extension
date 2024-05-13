@@ -82,11 +82,19 @@ export default function NotesBrowser({ patientId }) {
         return miniSearch;
     }, [notes]);
 
-    const fileterdNotes = useMemo(() => {
+    const suggestions = useMemo(() => {
         if (searchText == "") {
-            return notes;
+            return [];
         }
-        return searchIndex.search(searchText);
+        return searchIndex.autoSuggest(searchText);
+    }, [notes, searchText]);
+
+    const fileterdNotes = useMemo(() => {
+        return notes;
+        // if (searchText == "") {
+        //     return notes;
+        // }
+        // return searchIndex.search(searchText);
     }, [notes, searchText]);
 
     useEffect(() => {
@@ -150,13 +158,29 @@ export default function NotesBrowser({ patientId }) {
                     <HeartIcon className="" width={16} height={16} />
                     <ToolBarButtonLabel>Do It</ToolBarButtonLabel>
                 </ToolBarButton> */}
-                <div className="flex p-1.5 gap-1.5 items-center justify-center ">
-                    <FilterIcon size={16} />
-                    <input
-                        className="p-1.5 rounded-md"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                    />
+                <div className="p-1.5 m-0.5 bg-white rounded-md w-[400px]">
+                    <div className="flex gap-1.5 w-full items-center justify-center">
+                        <FilterIcon size={16} />
+
+                        <input
+                            className="outline-none bg-transparent grow"
+                            placeholder="Search Notes"
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                        />
+                    </div>
+                    {suggestions.length > 0 && (
+                        <ul className="absolute z-10 float-start max-h-[400px] bg-white border-[1px] border-gray-700 shadow-md overflow-y-auto ml-[-6px] mt-[9px] w-[400px] rounded-md flex flex-col ">
+                            {suggestions.map((item, index) => (
+                                <li
+                                    className="pl-5 p-1.5 hover:bg-gray-400"
+                                    key={index}
+                                >
+                                    {item.suggestion}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
