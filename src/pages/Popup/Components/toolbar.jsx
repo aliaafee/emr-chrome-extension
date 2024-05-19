@@ -27,7 +27,7 @@ const ToolBarButton = ({
 };
 
 const ToolBarButtonLabel = ({ children }) => (
-    <div className="min-w-[50px] pr-2">{children}</div>
+    <div className="min-w-[50px] pr-2 text-left">{children}</div>
 );
 
 const ToolBar = ({ className, children }) => {

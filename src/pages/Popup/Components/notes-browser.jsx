@@ -6,7 +6,7 @@ import ErrorMessage from "./error-message";
 import LoadingSpinner from "./loading-spinner";
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 import { ActiveTabContext } from "./activetab-context";
-import { FilterIcon, HeartIcon } from "lucide-react";
+import { FilterIcon, HeartIcon, SearchIcon } from "lucide-react";
 import { JSONTree } from "react-json-tree";
 import MiniSearch from "minisearch";
 
@@ -154,13 +154,9 @@ export default function NotesBrowser({ patientId }) {
     return (
         <div className="flex flex-col overflow-auto">
             <ToolBar className="bg-gray-200">
-                {/* <ToolBarButton title={`Do It`}>
-                    <HeartIcon className="" width={16} height={16} />
-                    <ToolBarButtonLabel>Do It</ToolBarButtonLabel>
-                </ToolBarButton> */}
-                <div className="p-1.5 m-0.5 bg-white rounded-md w-[400px] border-[1px] border-gray-400">
+                <div className="px-1.5 py-[5px] m-0.5 bg-white rounded-md w-[400px] border-[1px] border-gray-400">
                     <div className="flex gap-1.5 w-full items-center justify-center">
-                        <FilterIcon size={16} />
+                        <SearchIcon size={16} />
 
                         <input
                             className="outline-none bg-transparent grow"
@@ -182,6 +178,10 @@ export default function NotesBrowser({ patientId }) {
                         </ul>
                     )}
                 </div>
+                <ToolBarButton title="Filter">
+                    <FilterIcon className="" width={16} height={16} />
+                    <ToolBarButtonLabel>Filter</ToolBarButtonLabel>
+                </ToolBarButton>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
                 <ul className="flex flex-col gap-2 p-2">
