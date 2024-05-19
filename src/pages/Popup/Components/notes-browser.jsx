@@ -45,13 +45,14 @@ const NoteItem = ({ note }) => {
             }
         >
             <div className="flex p-2 gap-2 border-b-[1px] border-gray-300">
+                <div>{note.date}</div>
                 <div className="font-bold">{note.title}</div>
                 <div>{note.employee}</div>
             </div>
             <div className="whitespace-pre-wrap p-2">{note.text}</div>
-            <div className="text-gray-600 p-2 border-t-[1px] border-gray-300">
+            {/* <div className="text-gray-600 p-2 border-t-[1px] border-gray-300">
                 {note.date}
-            </div>
+            </div> */}
         </li>
     );
 };
@@ -62,6 +63,8 @@ export default function NotesBrowser({ patientId }) {
     const [error, setError] = useState(null);
     const [notes, setNotes] = useState(null);
     const [searchText, setSearchText] = useState("");
+    const [searchFocused, setSearchFocused] = useState(false);
+    const [selectedSearchText, setSelectedSearcText] = useState("");
 
     const searchIndex = useMemo(() => {
         if (!notes) {
@@ -86,16 +89,15 @@ export default function NotesBrowser({ patientId }) {
         if (searchText == "") {
             return [];
         }
-        return searchIndex.autoSuggest(searchText);
+        return searchIndex.autoSuggest(searchText, { fuzzy: 0.2 });
     }, [notes, searchText]);
 
     const fileterdNotes = useMemo(() => {
-        return notes;
-        // if (searchText == "") {
-        //     return notes;
-        // }
-        // return searchIndex.search(searchText);
-    }, [notes, searchText]);
+        if (selectedSearchText == "") {
+            return notes;
+        }
+        return searchIndex.search(selectedSearchText);
+    }, [notes, selectedSearchText]);
 
     useEffect(() => {
         if (!patientId) {
@@ -120,6 +122,13 @@ export default function NotesBrowser({ patientId }) {
             }
         })();
     }, [patientId]);
+
+    const handleSearchKeyPress = (e) => {
+        if (e.keyCode == 13) {
+            setSelectedSearcText(searchText);
+            e.target.blur();
+        }
+    };
 
     if (loading) {
         return (
@@ -163,9 +172,12 @@ export default function NotesBrowser({ patientId }) {
                             placeholder="Search Notes"
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
+                            onFocus={() => setSearchFocused(true)}
+                            onBlur={() => setSearchFocused(false)}
+                            onKeyUp={handleSearchKeyPress}
                         />
                     </div>
-                    {suggestions.length > 0 && (
+                    {suggestions.length > 0 && searchFocused && (
                         <ul className="absolute z-10 float-start max-h-[400px] bg-white border-[1px] border-gray-400 shadow-md overflow-y-auto ml-[-6px] mt-[9px] w-[400px] rounded-md flex flex-col ">
                             {suggestions.map((item, index) => (
                                 <li
