@@ -17,7 +17,7 @@ const ToolBarButton = ({
                     "hover:bg-gray-400 rounded-md flex items-center justify-center px-1.5 py-1.5 gap-1.5 m-0.5",
                     "disabled:text-gray-600",
                     active &&
-                        " bg-gray-200 border-b-2 border-b-black mb-0 rounded-b-none"
+                        " bg-gray-200 hover:bg-gray-200 border-b-2 border-b-gray-200 mb-0 rounded-b-none"
                 )}
             >
                 {children}

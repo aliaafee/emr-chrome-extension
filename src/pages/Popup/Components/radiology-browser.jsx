@@ -105,7 +105,7 @@ export default function RadiologyBrowser({ patientId }) {
 
     return (
         <div className="flex flex-col overflow-auto">
-            <ToolBar>
+            <ToolBar className="bg-gray-200">
                 <ToolBarButton
                     title={`Compare Studies ${
                         selectedStudies.length !== 2

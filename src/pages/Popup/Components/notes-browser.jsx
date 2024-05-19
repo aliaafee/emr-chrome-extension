@@ -153,7 +153,7 @@ export default function NotesBrowser({ patientId }) {
 
     return (
         <div className="flex flex-col overflow-auto">
-            <ToolBar className="bg-gray-200 border-b-[1px] border-gray-300">
+            <ToolBar className="bg-gray-200">
                 {/* <ToolBarButton title={`Do It`}>
                     <HeartIcon className="" width={16} height={16} />
                     <ToolBarButtonLabel>Do It</ToolBarButtonLabel>
