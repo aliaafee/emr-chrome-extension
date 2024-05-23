@@ -9,6 +9,7 @@ import { ActiveTabContext } from "./activetab-context";
 import { FilterIcon, HeartIcon, SearchIcon } from "lucide-react";
 import { JSONTree } from "react-json-tree";
 import MiniSearch from "minisearch";
+import SearchBox from "./search-box";
 
 const sectionCodes = {
     DR_NOTES: "Doctors Note",
@@ -62,9 +63,7 @@ export default function NotesBrowser({ patientId }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [notes, setNotes] = useState(null);
-    const [searchText, setSearchText] = useState("");
-    const [searchFocused, setSearchFocused] = useState(false);
-    const [selectedSearchText, setSelectedSearcText] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
 
     const searchIndex = useMemo(() => {
         if (!notes) {
@@ -85,19 +84,12 @@ export default function NotesBrowser({ patientId }) {
         return miniSearch;
     }, [notes]);
 
-    const suggestions = useMemo(() => {
-        if (searchText == "") {
-            return [];
-        }
-        return searchIndex.autoSuggest(searchText, { fuzzy: 0.2 });
-    }, [notes, searchText]);
-
     const fileterdNotes = useMemo(() => {
-        if (selectedSearchText == "") {
+        if (searchTerm == "") {
             return notes;
         }
-        return searchIndex.search(selectedSearchText);
-    }, [notes, selectedSearchText]);
+        return searchIndex.search(searchTerm);
+    }, [notes, searchTerm]);
 
     useEffect(() => {
         if (!patientId) {
@@ -123,11 +115,8 @@ export default function NotesBrowser({ patientId }) {
         })();
     }, [patientId]);
 
-    const handleSearchKeyPress = (e) => {
-        if (e.keyCode == 13) {
-            setSelectedSearcText(searchText);
-            e.target.blur();
-        }
+    const handleSelectSearchTerm = (newSearchTerm) => {
+        setSearchTerm(newSearchTerm);
     };
 
     if (loading) {
@@ -163,37 +152,14 @@ export default function NotesBrowser({ patientId }) {
     return (
         <div className="flex flex-col overflow-auto">
             <ToolBar className="bg-gray-200">
-                <div className="px-1.5 py-[5px] m-0.5 bg-white rounded-md w-[400px] border-[1px] border-gray-400">
-                    <div className="flex gap-1.5 w-full items-center justify-center">
-                        <SearchIcon size={16} />
-
-                        <input
-                            className="outline-none bg-transparent grow"
-                            placeholder="Search Notes"
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            onFocus={() => setSearchFocused(true)}
-                            onBlur={() => setSearchFocused(false)}
-                            onKeyUp={handleSearchKeyPress}
-                        />
-                    </div>
-                    {suggestions.length > 0 && searchFocused && (
-                        <ul className="absolute z-10 float-start max-h-[400px] bg-white border-[1px] border-gray-400 shadow-md overflow-y-auto ml-[-6px] mt-[9px] w-[400px] rounded-md flex flex-col ">
-                            {suggestions.map((item, index) => (
-                                <li
-                                    className="pl-5 p-1.5 hover:bg-gray-400"
-                                    key={index}
-                                >
-                                    {item.suggestion}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-                <ToolBarButton title="Filter">
+                <SearchBox
+                    searchIndex={searchIndex}
+                    onSelectSearchTerm={handleSelectSearchTerm}
+                />
+                {/* <ToolBarButton title="Filter">
                     <FilterIcon className="" width={16} height={16} />
                     <ToolBarButtonLabel>Filter</ToolBarButtonLabel>
-                </ToolBarButton>
+                </ToolBarButton> */}
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
                 <ul className="flex flex-col gap-2 p-2">
