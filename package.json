@@ -1,6 +1,6 @@
 {
   "name": "emr-chrome-extension",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "EMR Chrome Extension",
   "scripts": {
     "start": "node scripts/devserver.js",
