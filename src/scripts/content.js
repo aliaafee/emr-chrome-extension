@@ -14,6 +14,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         })();
         return true;
     }
+
+    if (request.action === "getText") {
+        (async () => {
+            const response = await getText(request.path);
+            sendResponse(response);
+        })();
+        return true;
+    }
 });
 
 function getCurrentPatientId() {
@@ -60,6 +68,40 @@ async function getResource(resourcePath) {
             status: null,
             statusText: error.message,
             data: null,
+        };
+    }
+}
+
+
+async function getText(resourcePath) {
+    console.log(`Getting Resource ${resourcePath}`);
+
+    const url = `${getApiRoot()}${resourcePath}`;
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            return {
+                ok: false,
+                status: response.status,
+                statusText: response.statusText,
+                text: null,
+            };
+        }
+
+        return {
+            ok: true,
+            status: response.status,
+            statusText: response.statusText,
+            text: await response.text(),
+        };
+    } catch (error) {
+        return {
+            ok: false,
+            status: null,
+            statusText: error.message,
+            text: null,
         };
     }
 }

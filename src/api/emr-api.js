@@ -66,6 +66,44 @@ async function getResource(path, tabId = null) {
 }
 
 
+async function getText(path, tabId = null) {
+    try {
+        const activeTabId = (tabId == null) ? (
+            (await getActiveTab()).id
+        ) : (
+            tabId
+        );
+
+        const response = await chrome.tabs.sendMessage(
+            activeTabId,
+            {
+                "action": "getText",
+                "path": path
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to get resource text, ${response.status}, ${response.statusText}`,
+                {
+                    cause: response
+                }
+            )
+        }
+
+        return response.text
+
+    } catch (error) {
+        throw new Error(
+            `Could not get resourcem text, ${error.message}`,
+            {
+                cause: error
+            }
+        )
+    }
+}
+
+
 const getRadiologyStudyUrl = (study) => {
     const studyDate = new Date(study.studyDate);
 
@@ -140,6 +178,7 @@ export {
     getActiveTab,
     getCurrentPatientId,
     getResource,
+    getText,
     viewerUrl,
     fileServerUrl,
     getRadiologyStudyUrl,

@@ -2,7 +2,11 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import "../../../styles.css";
 
-import { getActiveTab, getCurrentPatientId } from "../../../api/emr-api";
+import {
+    getActiveTab,
+    getCurrentPatientId,
+    getText,
+} from "../../../api/emr-api";
 import LabResultBrowser from "./labresult-browser";
 import ErrorMessage from "./error-message";
 import LoadingSpinner from "./loading-spinner";
@@ -18,6 +22,7 @@ import {
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 import { ActiveTabContext } from "./activetab-context";
 import NotesBrowser from "./notes-browser";
+import JSSoup from "jssoup";
 
 function getUrlParams() {
     const queryString = window.location.search;
@@ -40,6 +45,7 @@ async function getTargetTabId() {
 export default function App() {
     const activeTab = useContext(ActiveTabContext);
     const [patientId, setPatientId] = useState(null);
+    const [patientInfo, setPatientInfo] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [activeView, setActiveView] = useState("radiology");
@@ -64,6 +70,45 @@ export default function App() {
             }
         })();
     }, []);
+
+    useEffect(() => {
+        if (!patientId) {
+            return;
+        }
+        const updatePatientInfo = async () => {
+            setLoading(true);
+            try {
+                const patientInfoPage = await getText(
+                    `/live/pf/patientcontrolchartform/reload?patientId=${patientId}&closeDWBConsultation=patientcontrolchartform`,
+                    activeTab.id
+                );
+
+                const soup = new JSSoup(patientInfoPage);
+
+                setPatientInfo({
+                    name: soup.findAll("span", "pat-name")[0].text,
+                });
+
+                // const nameTags = soup.findAll("span", "pat-name");
+                // if (nameTags.length < 1) {
+                //     setPatientInfo({
+                //         name: "",
+                //     });
+                // } else {
+                //     setPatientInfo({
+                //         name: "hello",
+                //     });
+                // }
+                // alert(soup.findAll("span", "pat-name")[0].text);
+            } catch (err) {
+                setPatientInfo(null);
+                // setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        updatePatientInfo();
+    }, [patientId]);
 
     const handleNewWindow = () => {
         const url = !!activeTab.id
@@ -117,8 +162,12 @@ export default function App() {
 
     return (
         <div className="w-full h-full flex flex-col">
-            <div className="flex items-center justify-between">
-                <div className=" p-1.5">PatientId: {patientId}</div>
+            <div className="flex items-start justify-between">
+                <div className=" p-1.5">
+                    <div>PatientId: {patientId}</div>
+                    {!!patientInfo && <div>{patientInfo.name}</div>}
+                </div>
+
                 <ToolBar>
                     {isPopUpWindw ? (
                         <ToolBarButton title="Popout" onClick={handleNewWindow}>
