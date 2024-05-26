@@ -6,7 +6,6 @@ import ErrorMessage from "./error-message";
 import LoadingSpinner from "./loading-spinner";
 import { ToolBar, ToolBarButton, ToolBarButtonLabel } from "./toolbar";
 import { ActiveTabContext } from "./activetab-context";
-import { FilterIcon, HeartIcon, SearchIcon } from "lucide-react";
 import { JSONTree } from "react-json-tree";
 import MiniSearch from "minisearch";
 import SearchBox from "./search-box";
