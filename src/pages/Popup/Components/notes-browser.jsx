@@ -46,13 +46,12 @@ const NoteItem = ({ note }) => {
         >
             <div className="flex p-2 gap-2 border-b-[1px] border-gray-300">
                 <div>{note.date}</div>
-                <div className="font-bold">{note.title}</div>
-                <div>{note.employee}</div>
+                <div>
+                    <div className="font-bold">{note.title}</div>
+                    <div>{note.employee}</div>
+                </div>
             </div>
             <div className="whitespace-pre-wrap p-2">{note.text}</div>
-            {/* <div className="text-gray-600 p-2 border-t-[1px] border-gray-300">
-                {note.date}
-            </div> */}
         </li>
     );
 };
@@ -163,7 +162,7 @@ export default function NotesBrowser({ patientId }) {
             <div className="w-full flex flex-col overflow-auto">
                 <ul className="flex flex-col gap-2 p-2">
                     {fileterdNotes.map((note, index) => (
-                        <NoteItem note={note} />
+                        <NoteItem note={note} key={index} />
                     ))}
                 </ul>
                 {/* <JSONTree data={notes} /> */}

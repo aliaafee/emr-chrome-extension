@@ -9,8 +9,7 @@ async function getActiveTab() {
 
 async function getCurrentPatientId(tabId = null) {
     try {  
-        console.log("Tab ID is")
-        console.log(tabId);
+        console.log(`Tab ID is ${tabId}`);
         const activeTabId = (tabId === null) ? (
             (await getActiveTab()).id
         ) : (
