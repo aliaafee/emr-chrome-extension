@@ -115,7 +115,7 @@ export default function App() {
     if (error) {
         return (
             <div className="w-full h-full flex">
-                <ErrorMessage title="-Error" message={error.message} />
+                <ErrorMessage title="Error" message={error.message} />
             </div>
         );
     }
