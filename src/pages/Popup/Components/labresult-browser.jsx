@@ -1,10 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import { getResource } from "../../../api/emr-api";
+import {
+    formateDate,
+    formateTime,
+    getResource,
+    parseDate,
+} from "../../../api/emr-api";
 import ErrorMessage from "./error-message";
 import LoadingSpinner from "./loading-spinner";
 import { JSONTree } from "react-json-tree";
-import dayjs from "dayjs";
 
 import "../../../styles.css";
 import { ActiveTabContext } from "./activetab-context";
@@ -87,10 +91,19 @@ const mergeDuplicates = (results) =>
         };
     }, {});
 
-const parseDate = (stringDate) => dayjs(stringDate, "MMM D, YYYY h:mm:ss A");
+// const parseDate = (stringDateTime) =>
+//     dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A");
 
-const formateDate = (stringDate) =>
-    dayjs(stringDate, "MMM D, YYYY h:mm:ss A").format("DD/MM/YYYY HH:mm:ss");
+// const formateDateTime = (stringDateTime) =>
+//     dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A").format(
+//         "DD/MM/YYYY HH:mm:ss"
+//     );
+
+// const formateDate = (stringDateTime) =>
+//     dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A").format("DD/MM/YYYY");
+
+// const formateTime = (stringDateTime) =>
+//     dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A").format("HH:mm:ss");
 
 const isInRange = (result) => {
     if (result.range === "-") return true;
@@ -112,12 +125,8 @@ const ResultCard = ({ result }) => (
         >
             {result.value}
         </div>
-        <div className="text-gray-600">
-            {parseDate(result.resultDate).format("DD/MM/YYYY")}
-        </div>
-        <div className="text-gray-600">
-            {parseDate(result.resultDate).format("HH:mm:ss")}
-        </div>
+        <div className="text-gray-600">{formateDate(result.resultDate)}</div>
+        <div className="text-gray-600">{formateTime(result.resultDate)}</div>
     </div>
 );
 

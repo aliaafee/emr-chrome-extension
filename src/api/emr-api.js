@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 const fileServerUrl = "http://10.10.10.197:4000";
 const viewerUrl = "http://10.10.10.91:3000";
 
@@ -173,6 +175,20 @@ function flattenDicomFileTree(fileTree) {
     return fileList;
 }
 
+const parseDate = (stringDateTime) =>
+    dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A");
+
+const formateDateTime = (stringDateTime) =>
+    dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A").format(
+        "DD/MM/YYYY HH:mm:ss"
+    );
+
+const formateDate = (stringDateTime) =>
+    dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A").format("DD/MM/YYYY");
+
+const formateTime = (stringDateTime) =>
+    dayjs(stringDateTime, "MMM D, YYYY h:mm:ss A").format("HH:mm:ss");
+
 export {
     getActiveTab,
     getCurrentPatientId,
@@ -183,7 +199,11 @@ export {
     getRadiologyStudyUrl,
     getDicomFileTree,
     flattenDicomFileTree,
-    getDicomPatientName
+    getDicomPatientName,
+    parseDate,
+    formateDateTime,
+    formateDate,
+    formateTime
 };
 
 
