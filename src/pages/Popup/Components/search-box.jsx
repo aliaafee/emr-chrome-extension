@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge";
 export default function SearchBox({
     searchIndex,
     onSelectSearchTerm,
+    placeholder = "Search",
     width = "400px",
 }) {
     const [searchText, setSearchText] = useState("");
@@ -77,7 +78,7 @@ export default function SearchBox({
                 <SearchIcon size={16} />
                 <input
                     className="outline-none bg-transparent grow"
-                    placeholder="Search Notes"
+                    placeholder={placeholder}
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                     onFocus={() => setSearchFocused(true)}

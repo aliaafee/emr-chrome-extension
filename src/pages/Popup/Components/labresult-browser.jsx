@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import {
     formateDate,
@@ -12,6 +12,9 @@ import { JSONTree } from "react-json-tree";
 
 import "../../../styles.css";
 import { ActiveTabContext } from "./activetab-context";
+import { ToolBar } from "./toolbar";
+import SearchBox from "./search-box";
+import MiniSearch from "minisearch";
 
 const sanitizeLabResults = (results) =>
     results.data.reduce(
@@ -135,25 +138,53 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [labResults, setLabResults] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const searchIndex = useMemo(() => {
+        if (!labResults) {
+            return null;
+        }
+        let miniSearch = new MiniSearch({
+            fields: ["name", "parent"], // fields to index for full-text search
+            storeFields: ["data"], // fields to return with search results
+        });
+        miniSearch.addAll(labResults);
+        return miniSearch;
+    }, [labResults]);
+
+    const fileterdResults = useMemo(() => {
+        if (searchTerm == "") {
+            return labResults;
+        }
+        return searchIndex.search(searchTerm);
+    }, [labResults, searchTerm]);
 
     useEffect(() => {
         if (!patientId) {
-            setLabResults(null);
+            setLabResults([]);
             return;
         }
         (async () => {
             setLoading(true);
             try {
-                setLabResults(
-                    mergeDuplicates(
-                        sanitizeLabResults(
-                            await getResource(
-                                `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
-                                activeTab.id
-                            )
+                const loadedLabResults = mergeDuplicates(
+                    sanitizeLabResults(
+                        await getResource(
+                            `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
+                            activeTab.id
                         )
                     )
                 );
+                const loadedLabResultsList = Object.entries(
+                    loadedLabResults
+                ).map(([key, result]) => ({
+                    id: key,
+                    name: result.name,
+                    parent: result.parent,
+                    data: result,
+                }));
+                console.log(loadedLabResultsList);
+                setLabResults(loadedLabResultsList);
             } catch (err) {
                 setError(err);
             } finally {
@@ -161,6 +192,10 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
             }
         })();
     }, [patientId]);
+
+    const handleSelectSearchTerm = (newSearchTerm) => {
+        setSearchTerm(newSearchTerm);
+    };
 
     if (loading) {
         return (
@@ -195,52 +230,76 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
     console.log(labResults);
 
     return (
-        <div className="w-full flex flex-col overflow-auto">
-            <ul className="whitespace-pre-wrap overflow-auto">
-                {Object.entries(labResults).map(([key, result]) => (
-                    <>
-                        <li
-                            key={key}
-                            className="grid gap-1.5 p-1.5 even:bg-gray-200 odd:bg-gray-300"
-                            style={{
-                                gridTemplateColumns:
-                                    "minmax(6rem, max-content) 1fr",
-                            }}
-                        >
-                            <div className="">
-                                {result.parent && <div>{result.parent}</div>}
-                                <div>{result.name}</div>
-                                <div>{result.unit}</div>
-                                <div>{result.range}</div>
-                            </div>
-                            {result.datewiseValues && (
-                                <div>
-                                    {result.datewiseValues
-                                        .toSorted((a, b) =>
-                                            parseDate(a.resultDate).isBefore(
-                                                parseDate(b.resultDate)
-                                            )
-                                                ? 1
-                                                : -1
-                                        )
-                                        .map(
-                                            (datewiseItem, dateIndex) =>
-                                                datewiseItem.value && (
-                                                    <ResultCard
-                                                        result={datewiseItem}
-                                                        key={dateIndex}
-                                                    />
-                                                )
-                                        )}
+        <div className="flex flex-col overflow-auto">
+            <ToolBar className="bg-gray-200">
+                <SearchBox
+                    placeholder="Search Lab Results"
+                    searchIndex={searchIndex}
+                    onSelectSearchTerm={handleSelectSearchTerm}
+                />
+            </ToolBar>
+            <div className="w-full flex flex-col overflow-auto">
+                <ul className="whitespace-pre-wrap overflow-auto">
+                    {fileterdResults.map((result, index) => (
+                        <>
+                            <li
+                                key={index}
+                                className="grid gap-1.5 p-1.5 even:bg-gray-200 odd:bg-gray-300"
+                                style={{
+                                    gridTemplateColumns:
+                                        "minmax(6rem, max-content) 1fr",
+                                }}
+                            >
+                                <div className="">
+                                    {result.parent && (
+                                        <div>{result.parent}</div>
+                                    )}
+                                    <div>{result.data.name}</div>
+                                    <div>{result.data.unit}</div>
+                                    <div>{result.data.range}</div>
                                 </div>
-                            )}
-                        </li>
-                        {/* <li>
-                            <JSONTree data={result} />
-                        </li> */}
-                    </>
-                ))}
-            </ul>
+                                {result.data.datewiseValues && (
+                                    <div>
+                                        {result.data.datewiseValues
+                                            .toSorted((a, b) =>
+                                                parseDate(
+                                                    a.resultDate
+                                                ).isBefore(
+                                                    parseDate(b.resultDate)
+                                                )
+                                                    ? 1
+                                                    : -1
+                                            )
+                                            .map(
+                                                (datewiseItem, dateIndex) =>
+                                                    datewiseItem.value && (
+                                                        <ResultCard
+                                                            result={
+                                                                datewiseItem
+                                                            }
+                                                            key={dateIndex}
+                                                        />
+                                                    )
+                                            )}
+                                    </div>
+                                )}
+                                {result.data.hasParameter && (
+                                    <div>
+                                        <JSONTree
+                                            data={result.data.parameters}
+                                        />
+                                    </div>
+                                )}
+                            </li>
+                            {/* {
+                                <li>
+                                    <JSONTree data={result} />
+                                </li>
+                            } */}
+                        </>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }

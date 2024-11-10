@@ -151,6 +151,7 @@ export default function NotesBrowser({ patientId }) {
         <div className="flex flex-col overflow-auto">
             <ToolBar className="bg-gray-200">
                 <SearchBox
+                    placeholder="Search Notes"
                     searchIndex={searchIndex}
                     onSelectSearchTerm={handleSelectSearchTerm}
                 />
