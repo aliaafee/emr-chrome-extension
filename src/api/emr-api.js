@@ -10,100 +10,69 @@ async function getActiveTab() {
 }
 
 async function getCurrentPatientId(tabId = null) {
-    try {  
+    try {
         console.log(`Tab ID is ${tabId}`);
-        const activeTabId = (tabId === null) ? (
-            (await getActiveTab()).id
-        ) : (
-            tabId
-        );
+        const activeTabId = tabId === null ? (await getActiveTab()).id : tabId;
 
-        return await chrome.tabs.sendMessage(
-            activeTabId,
-            {
-                "action": "getCurrentPatientId"
-            }
-        );
+        return await chrome.tabs.sendMessage(activeTabId, {
+            action: "getCurrentPatientId",
+        });
     } catch (error) {
-        return null
+        return null;
     }
 }
 
 async function getResource(path, tabId = null) {
     try {
-        const activeTabId = (tabId == null) ? (
-            (await getActiveTab()).id
-        ) : (
-            tabId
-        );
+        const activeTabId = tabId == null ? (await getActiveTab()).id : tabId;
 
-        const response = await chrome.tabs.sendMessage(
-            activeTabId,
-            {
-                "action": "getResource",
-                "path": path
-            }
-        );
+        const response = await chrome.tabs.sendMessage(activeTabId, {
+            action: "getResource",
+            path: path,
+        });
 
         if (!response.ok) {
             throw new Error(
                 `Failed to get resource, ${response.status}, ${response.statusText}`,
                 {
-                    cause: response
+                    cause: response,
                 }
-            )
+            );
         }
 
-        return response.data
-
+        return response.data;
     } catch (error) {
-        throw new Error(
-            `Could not get resource, ${error.message}`,
-            {
-                cause: error
-            }
-        )
+        throw new Error(`Could not get resource, ${error.message}`, {
+            cause: error,
+        });
     }
 }
 
-
 async function getText(path, tabId = null) {
     try {
-        const activeTabId = (tabId == null) ? (
-            (await getActiveTab()).id
-        ) : (
-            tabId
-        );
+        const activeTabId = tabId == null ? (await getActiveTab()).id : tabId;
 
-        const response = await chrome.tabs.sendMessage(
-            activeTabId,
-            {
-                "action": "getText",
-                "path": path
-            }
-        );
+        const response = await chrome.tabs.sendMessage(activeTabId, {
+            action: "getText",
+            path: path,
+        });
 
         if (!response.ok) {
             throw new Error(
                 `Failed to get resource text, ${response.status}, ${response.statusText}`,
                 {
-                    cause: response
+                    cause: response,
                 }
-            )
+            );
         }
 
-        return response.text
-
+        return response.text;
     } catch (error) {
-        throw new Error(
-            `Could not get resourcem text, ${error.message}`,
-            {
-                cause: error
-            }
-        )
+        throw new Error(`Could not get resource text, ${error.message}`, {
+            cause: error,
+        });
     }
 }
-
 
 const getRadiologyStudyUrl = (study) => {
     const studyDate = new Date(study.studyDate);
@@ -135,9 +104,9 @@ async function getDicomFileTree(studyUrl) {
             throw new Error(
                 `Failed to get study details, ${response.status} ${response.statusText}`,
                 {
-                    cause: response
+                    cause: response,
                 }
-            )
+            );
         }
 
         const fileTree = await response.json();
@@ -203,9 +172,8 @@ export {
     parseDate,
     formateDateTime,
     formateDate,
-    formateTime
+    formateTime,
 };
-
 
 // export default {
 //     getActiveTab: getActiveTab,
