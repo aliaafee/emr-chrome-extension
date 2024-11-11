@@ -13,8 +13,9 @@ import { JSONTree } from "react-json-tree";
 import "../../../styles.css";
 import { ActiveTabContext } from "./activetab-context";
 import { ToolBar } from "./toolbar";
-import SearchBox from "./search-box";
-import MiniSearch from "minisearch";
+// import SearchBox from "./search-box";
+// import MiniSearch from "minisearch";
+import { SearchIcon } from "lucide-react";
 
 const sanitizeLabResults = (results) =>
     results.data.reduce(
@@ -62,10 +63,10 @@ const sanitizeLabResults = (results) =>
         []
     );
 
-const toSortedLabResults = (results) =>
-    results.toSorted((a, b) =>
-        [a.name, b.name].toSorted()[0] === a.name ? -1 : 1
-    );
+// const toSortedLabResults = (results) =>
+//     results.toSorted((a, b) =>
+//         [a.name, b.name].toSorted()[0] === a.name ? -1 : 1
+//     );
 
 const mergeDuplicates = (results) =>
     results.reduce((a, result) => {
@@ -138,26 +139,27 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [labResults, setLabResults] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
+    // const [searchTerm, setSearchTerm] = useState("");
+    const [fastSearchTerm, setFastSearchTerm] = useState("");
 
-    const searchIndex = useMemo(() => {
-        if (!labResults) {
-            return null;
-        }
-        let miniSearch = new MiniSearch({
-            fields: ["name", "parent"], // fields to index for full-text search
-            storeFields: ["data"], // fields to return with search results
-        });
-        miniSearch.addAll(labResults);
-        return miniSearch;
-    }, [labResults]);
+    // const searchIndex = useMemo(() => {
+    //     if (!labResults) {
+    //         return null;
+    //     }
+    //     let miniSearch = new MiniSearch({
+    //         fields: ["name", "parent"], // fields to index for full-text search
+    //         storeFields: ["data"], // fields to return with search results
+    //     });
+    //     miniSearch.addAll(labResults);
+    //     return miniSearch;
+    // }, [labResults]);
 
-    const fileterdResults = useMemo(() => {
-        if (searchTerm == "") {
-            return labResults;
-        }
-        return searchIndex.search(searchTerm);
-    }, [labResults, searchTerm]);
+    // const fileterdResults = useMemo(() => {
+    //     if (searchTerm == "") {
+    //         return labResults;
+    //     }
+    //     return searchIndex.search(searchTerm);
+    // }, [labResults, searchTerm]);
 
     useEffect(() => {
         if (!patientId) {
@@ -178,9 +180,11 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
                 const loadedLabResultsList = Object.entries(
                     loadedLabResults
                 ).map(([key, result]) => ({
-                    id: key,
                     name: result.name,
-                    parent: result.parent,
+                    parent:
+                        typeof result.parent === "undefined"
+                            ? ""
+                            : result.parent,
                     data: result,
                 }));
                 console.log(loadedLabResultsList);
@@ -193,9 +197,29 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
         })();
     }, [patientId]);
 
-    const handleSelectSearchTerm = (newSearchTerm) => {
-        setSearchTerm(newSearchTerm);
-    };
+    // const handleSelectSearchTerm = (newSearchTerm) => {
+    //     setSearchTerm(newSearchTerm);
+    // };
+
+    const fileterdResults = useMemo(() => {
+        if (fastSearchTerm === "") {
+            return labResults;
+        }
+        return labResults.filter((labResult) => {
+            try {
+                return (
+                    labResult.data.name
+                        .toUpperCase()
+                        .includes(fastSearchTerm.toUpperCase()) ||
+                    labResult.parent
+                        .toUpperCase()
+                        .includes(fastSearchTerm.toUpperCase())
+                );
+            } catch (error) {
+                return [];
+            }
+        });
+    }, [labResults, fastSearchTerm]);
 
     if (loading) {
         return (
@@ -227,16 +251,41 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
         );
     }
 
-    console.log(labResults);
+    if (!fileterdResults) {
+        return (
+            <div className="w-full h-full flex">
+                <ErrorMessage
+                    title="No Lab Results Found"
+                    message={`No matches for "${searchTerm}"`}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col overflow-auto">
             <ToolBar className="bg-gray-200">
-                <SearchBox
+                {/* <SearchBox
                     placeholder="Search Lab Results"
                     searchIndex={searchIndex}
                     onSelectSearchTerm={handleSelectSearchTerm}
-                />
+                /> */}
+                <div
+                    className="px-1.5 py-[5px] m-0.5 bg-white rounded-md border-[1px] border-gray-400"
+                    style={{ width: "400px" }}
+                >
+                    <div className="flex gap-1.5 w-full items-center justify-center">
+                        <SearchIcon size={16} />
+                        <input
+                            className="outline-none bg-transparent grow"
+                            placeholder="Search Lab Results"
+                            value={fastSearchTerm}
+                            onChange={(event) => {
+                                setFastSearchTerm(event.target.value);
+                            }}
+                        />
+                    </div>
+                </div>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
                 <ul className="whitespace-pre-wrap overflow-auto">
