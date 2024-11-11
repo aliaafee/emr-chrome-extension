@@ -13,9 +13,9 @@ import { JSONTree } from "react-json-tree";
 import "../../../styles.css";
 import { ActiveTabContext } from "./activetab-context";
 import { ToolBar } from "./toolbar";
+import { SearchIcon } from "lucide-react";
 // import SearchBox from "./search-box";
 // import MiniSearch from "minisearch";
-import { SearchIcon } from "lucide-react";
 
 const sanitizeLabResults = (results) =>
     results.data.reduce(
@@ -251,17 +251,6 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
         );
     }
 
-    if (!fileterdResults) {
-        return (
-            <div className="w-full h-full flex">
-                <ErrorMessage
-                    title="No Lab Results Found"
-                    message={`No matches for "${searchTerm}"`}
-                />
-            </div>
-        );
-    }
-
     return (
         <div className="flex flex-col overflow-auto">
             <ToolBar className="bg-gray-200">
@@ -289,6 +278,11 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
                 <ul className="whitespace-pre-wrap overflow-auto">
+                    {fileterdResults.length === 0 && (
+                        <div className="p-1.5">
+                            No results found matching "{fastSearchTerm}"
+                        </div>
+                    )}
                     {fileterdResults.map((result, index) => (
                         <>
                             <li
@@ -307,37 +301,36 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
                                     <div>{result.data.unit}</div>
                                     <div>{result.data.range}</div>
                                 </div>
-                                {result.data.datewiseValues && (
+                                {result.data.hasParameter ? (
                                     <div>
-                                        {result.data.datewiseValues
-                                            .toSorted((a, b) =>
-                                                parseDate(
-                                                    a.resultDate
-                                                ).isBefore(
-                                                    parseDate(b.resultDate)
-                                                )
-                                                    ? 1
-                                                    : -1
-                                            )
-                                            .map(
-                                                (datewiseItem, dateIndex) =>
-                                                    datewiseItem.value && (
-                                                        <ResultCard
-                                                            result={
-                                                                datewiseItem
-                                                            }
-                                                            key={dateIndex}
-                                                        />
+                                        <JSONTree data={result.data} />
+                                    </div>
+                                ) : (
+                                    result.data.datewiseValues && (
+                                        <div>
+                                            {result.data.datewiseValues
+                                                .toSorted((a, b) =>
+                                                    parseDate(
+                                                        a.resultDate
+                                                    ).isBefore(
+                                                        parseDate(b.resultDate)
                                                     )
-                                            )}
-                                    </div>
-                                )}
-                                {result.data.hasParameter && (
-                                    <div>
-                                        <JSONTree
-                                            data={result.data.parameters}
-                                        />
-                                    </div>
+                                                        ? 1
+                                                        : -1
+                                                )
+                                                .map(
+                                                    (datewiseItem, dateIndex) =>
+                                                        datewiseItem.value && (
+                                                            <ResultCard
+                                                                result={
+                                                                    datewiseItem
+                                                                }
+                                                                key={dateIndex}
+                                                            />
+                                                        )
+                                                )}
+                                        </div>
+                                    )
                                 )}
                             </li>
                             {/* {
