@@ -9,6 +9,8 @@ import { ActiveTabContext } from "./activetab-context";
 import { JSONTree } from "react-json-tree";
 import MiniSearch from "minisearch";
 import SearchBox from "./search-box";
+import { DownloadIcon } from "lucide-react";
+import { getPatientInfo } from "../Utils/patientinfo";
 
 const sectionCodes = {
     DR_NOTES: "Doctors Note",
@@ -82,6 +84,26 @@ export default function NotesBrowser({ patientId }) {
         return miniSearch;
     }, [notes]);
 
+    const downloadNotesJSON = async () => {
+        const patientInfo = await getPatientInfo(patientId, activeTab.id);
+
+        const dataStr =
+            "data:text/json;charset=utf-8," +
+            encodeURIComponent(
+                JSON.stringify(
+                    { patient: patientInfo, clinical_notes: notes },
+                    null,
+                    2,
+                ),
+            );
+        const downloadAnchorNode = document.createElement("a");
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "notes.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    };
+
     const fileterdNotes = useMemo(() => {
         if (searchTerm == "") {
             return notes;
@@ -101,9 +123,9 @@ export default function NotesBrowser({ patientId }) {
                     sanitizeNotes(
                         await getResource(
                             `/live/df/pcc/widgets/clinicalNotes?encounterId=&patientId=${patientId}&size=max`,
-                            activeTab.id
-                        )
-                    )
+                            activeTab.id,
+                        ),
+                    ),
                 );
             } catch (err) {
                 setError(err);
@@ -159,6 +181,13 @@ export default function NotesBrowser({ patientId }) {
                     <FilterIcon className="" width={16} height={16} />
                     <ToolBarButtonLabel>Filter</ToolBarButtonLabel>
                 </ToolBarButton> */}
+                <ToolBarButton
+                    title="Downaload Notes as JSON"
+                    onClick={downloadNotesJSON}
+                >
+                    <DownloadIcon className="" width={16} height={16} />
+                    <ToolBarButtonLabel>Download JSON</ToolBarButtonLabel>
+                </ToolBarButton>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
                 <ul className="flex flex-col gap-2 p-2">
