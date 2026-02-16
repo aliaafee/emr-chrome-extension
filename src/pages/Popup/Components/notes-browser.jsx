@@ -63,7 +63,9 @@ export default function NotesBrowser({ patientId }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [notes, setNotes] = useState(null);
+    const [encounters, setEncounters] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedEncounterId, setSelectedEncounterId] = useState("");
 
     const searchIndex = useMemo(() => {
         if (!notes) {
@@ -87,11 +89,15 @@ export default function NotesBrowser({ patientId }) {
     const downloadNotesJSON = async () => {
         const patientInfo = await getPatientInfo(patientId, activeTab.id);
 
+        const combined_text = notes.map((note) => note.text).join("\n\n");
+
+        const escaped_text = combined_text.replace(/\n/g, "\n");
+
         const dataStr =
             "data:text/json;charset=utf-8," +
             encodeURIComponent(
                 JSON.stringify(
-                    { patient: patientInfo, clinical_notes: notes },
+                    { patient: patientInfo, clinical_notes: escaped_text },
                     null,
                     2,
                 ),
@@ -122,9 +128,15 @@ export default function NotesBrowser({ patientId }) {
                 setNotes(
                     sanitizeNotes(
                         await getResource(
-                            `/live/df/pcc/widgets/clinicalNotes?encounterId=&patientId=${patientId}&size=max`,
+                            `/live/df/pcc/widgets/clinicalNotes?encounterId=${selectedEncounterId}&patientId=${patientId}&size=max`,
                             activeTab.id,
                         ),
+                    ),
+                );
+                setEncounters(
+                    await getResource(
+                        `/live/df/pcc/dashboard/previousEncounters/${patientId}`,
+                        activeTab.id,
                     ),
                 );
             } catch (err) {
@@ -133,7 +145,7 @@ export default function NotesBrowser({ patientId }) {
                 setLoading(false);
             }
         })();
-    }, [patientId]);
+    }, [patientId, selectedEncounterId]);
 
     const handleSelectSearchTerm = (newSearchTerm) => {
         setSearchTerm(newSearchTerm);
@@ -169,8 +181,24 @@ export default function NotesBrowser({ patientId }) {
         );
     }
 
+    console.log("Encounters:", encounters);
+
     return (
         <div className="flex flex-col overflow-auto">
+            <div className="flex p-0.5 bg-gray-200">
+                <select
+                    className="p-1 rounded-sm border-gray-300 border grow"
+                    onChange={(e) => setSelectedEncounterId(e.target.value)}
+                >
+                    <option value="">All Encounters</option>
+                    {encounters &&
+                        encounters.data.map((encounter) => (
+                            <option value={encounter.id} key={encounter.conId}>
+                                {`${encounter.name}`}{" "}
+                            </option>
+                        ))}
+                </select>
+            </div>
             <ToolBar className="bg-gray-200">
                 <SearchBox
                     placeholder="Search Notes"
