@@ -98,7 +98,7 @@ export default function NotesBrowser({ patientId }) {
             );
         const downloadAnchorNode = document.createElement("a");
         downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "notes.json");
+        downloadAnchorNode.setAttribute("download", `notes-${patientId}.json`);
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
