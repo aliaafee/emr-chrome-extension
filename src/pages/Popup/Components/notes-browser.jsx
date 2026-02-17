@@ -9,9 +9,10 @@ import { ActiveTabContext } from "./activetab-context";
 import { JSONTree } from "react-json-tree";
 import MiniSearch from "minisearch";
 import SearchBox from "./search-box";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, CheckSquare, Square } from "lucide-react";
 import { getPatientInfo } from "../Utils/patientinfo";
 import { use } from "react";
+import Modal from "./modal";
 
 const sectionCodes = {
     DR_NOTES: "Doctors Note",
@@ -68,6 +69,11 @@ export default function NotesBrowser({ patientId }) {
     const [encounters, setEncounters] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedEncounterId, setSelectedEncounterId] = useState("");
+    const [showDownloadModal, setShowDownloadModal] = useState(false);
+    const [selectedEncounterIds, setSelectedEncounterIds] = useState([]);
+    const [preparingDownload, setPreparingDownload] = useState(false);
+    const [downloadUrl, setDownloadUrl] = useState(null);
+    const [downloadFilename, setDownloadFilename] = useState(null);
 
     const searchIndex = useMemo(() => {
         if (!notes) {
@@ -88,34 +94,102 @@ export default function NotesBrowser({ patientId }) {
         return miniSearch;
     }, [notes]);
 
+    const openDownloadModal = () => {
+        setShowDownloadModal(true);
+        setDownloadUrl(null);
+        setDownloadFilename(null);
+        // Initialize with all encounters selected
+        if (encounters && encounters.data) {
+            setSelectedEncounterIds(encounters.data.map((enc) => enc.id));
+        }
+    };
+
+    const handleToggleEncounter = (encounterId) => {
+        setSelectedEncounterIds((prev) => {
+            if (prev.includes(encounterId)) {
+                return prev.filter((id) => id !== encounterId);
+            } else {
+                return [...prev, encounterId];
+            }
+        });
+    };
+
+    const handleToggleAll = () => {
+        if (selectedEncounterIds.length === encounters.data.length) {
+            setSelectedEncounterIds([]);
+        } else {
+            setSelectedEncounterIds(encounters.data.map((enc) => enc.id));
+        }
+    };
+
     const downloadNotesJSON = async () => {
-        const patientInfo = await getPatientInfo(patientId, activeTab.id);
+        setPreparingDownload(true);
 
-        const combined_text = notes.map((note) => note.text).join("\n\n");
+        try {
+            const patientInfo = await getPatientInfo(patientId, activeTab.id);
 
-        const dataStr =
-            "data:text/json;charset=utf-8," +
-            encodeURIComponent(
-                JSON.stringify(
-                    {
-                        patient: {
-                            id: patientId,
-                            sex: patientInfo.sex,
-                            dob: patientInfo.dob,
-                        },
-                        encounterId: selectedEncounterId || "All Encounters",
-                        clinical_notes: combined_text,
-                    },
-                    null,
-                    2,
-                ),
-            );
-        const downloadAnchorNode = document.createElement("a");
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `notes-${patientId}.json`);
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+            // Fetch notes for selected encounters
+            let allNotes = [];
+            for (const encounterId of selectedEncounterIds) {
+                console.log(`Fetching notes for encounter ${encounterId}...`);
+                try {
+                    const encounterNotes = sanitizeNotes(
+                        await getResource(
+                            `/live/df/pcc/widgets/clinicalNotes?encounterId=${encounterId}&patientId=${patientId}&size=max`,
+                            activeTab.id,
+                        ),
+                    );
+                    allNotes = allNotes.concat(encounterNotes);
+                } catch (err) {
+                    console.error(
+                        `Error fetching notes for encounter ${encounterId}:`,
+                        err,
+                    );
+                }
+            }
+
+            console.log("All Notes for Download:", allNotes);
+
+            //Sort allNotes by date (oldest first) date is stored as string with format like "Feb 17, 2026 7:50:50 AM"
+            allNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const combined_text = allNotes
+                .map(
+                    (note) =>
+                        `Date: ${note.date}\nSection: ${note.section}\nTitle: ${note.title}\nText: ${note.text}`,
+                )
+                .join("\n\n");
+
+            console.log("Combined Notes Text:", combined_text);
+
+            const selectedEncounterNames = encounters.data
+                .filter((enc) => selectedEncounterIds.includes(enc.id))
+                .map((enc) => enc.name);
+
+            const downloadData = {
+                patient: {
+                    id: patientId,
+                    sex: patientInfo.sex,
+                    dob: patientInfo.dob,
+                },
+                encounters: selectedEncounterNames,
+                clinical_notes: combined_text,
+            };
+
+            console.log("Download Data:", downloadData);
+
+            const dataStr =
+                "data:text/json;charset=utf-8," +
+                encodeURIComponent(JSON.stringify(downloadData, null, 2));
+
+            setDownloadUrl(dataStr);
+            setDownloadFilename(`notes-${patientId}.json`);
+        } catch (err) {
+            console.error("Error preparing download:", err);
+            setError(err);
+        } finally {
+            setPreparingDownload(false);
+        }
     };
 
     const fileterdNotes = useMemo(() => {
@@ -238,7 +312,7 @@ export default function NotesBrowser({ patientId }) {
                 </ToolBarButton> */}
                 <ToolBarButton
                     title="Downaload Notes as JSON"
-                    onClick={downloadNotesJSON}
+                    onClick={openDownloadModal}
                 >
                     <DownloadIcon className="" width={16} height={16} />
                     <ToolBarButtonLabel>Download JSON</ToolBarButtonLabel>
@@ -263,6 +337,106 @@ export default function NotesBrowser({ patientId }) {
 
                 {/* <JSONTree data={notes} /> */}
             </div>
+            <Modal
+                isOpen={showDownloadModal}
+                onClose={() => setShowDownloadModal(false)}
+                title="Select Encounters to Download"
+            >
+                {preparingDownload ? (
+                    <div className="p-4 flex items-center justify-center min-h-[200px] grow">
+                        <LoadingSpinner message="Preparing download..." />
+                    </div>
+                ) : downloadUrl ? (
+                    <div className="p-4 flex flex-col items-center justify-center min-h-[200px] gap-4 grow">
+                        <div className="text-center grow">
+                            <p className="text-lg font-semibold mb-2">
+                                Download Ready!
+                            </p>
+                            <p className="text-gray-600 mb-4">
+                                Click the button below to download your notes
+                            </p>
+                        </div>
+                        <a
+                            href={downloadUrl}
+                            download={downloadFilename}
+                            className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-lg flex items-center gap-2 font-semibold"
+                        >
+                            <DownloadIcon width={20} height={20} />
+                            Download {downloadFilename}
+                        </a>
+                        <button
+                            onClick={() => setShowDownloadModal(false)}
+                            className="mt-4 px-4 py-2 text-gray-600 hover:text-gray-800"
+                        >
+                            Close
+                        </button>
+                    </div>
+                ) : (
+                    <div className="p-4 flex flex-col h-full grow">
+                        <div className="mb-4">
+                            <button
+                                onClick={handleToggleAll}
+                                className="flex items-center p-2 hover:bg-gray-100 rounded w-full font-semibold"
+                            >
+                                {selectedEncounterIds.length ===
+                                encounters?.data?.length ? (
+                                    <CheckSquare
+                                        width={20}
+                                        height={20}
+                                        className="text-blue-600"
+                                    />
+                                ) : (
+                                    <Square width={20} height={20} />
+                                )}
+                                Select All
+                            </button>
+                        </div>
+                        <div className="space-y-2 max-h-40 overflow-auto flex flex-col">
+                            {encounters?.data?.map((encounter) => (
+                                <button
+                                    key={encounter.id}
+                                    onClick={() =>
+                                        handleToggleEncounter(encounter.id)
+                                    }
+                                    className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded w-full text-left"
+                                >
+                                    {selectedEncounterIds.includes(
+                                        encounter.id,
+                                    ) ? (
+                                        <CheckSquare
+                                            width={20}
+                                            height={20}
+                                            className="text-blue-600 flex-shrink-0"
+                                        />
+                                    ) : (
+                                        <Square
+                                            width={20}
+                                            height={20}
+                                            className="flex-shrink-0"
+                                        />
+                                    )}
+                                    <span>{encounter.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="mt-4 flex gap-2 justify-end border-t pt-4">
+                            <button
+                                onClick={() => setShowDownloadModal(false)}
+                                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={downloadNotesJSON}
+                                disabled={selectedEncounterIds.length === 0}
+                                className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            >
+                                Download ({selectedEncounterIds.length})
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 }

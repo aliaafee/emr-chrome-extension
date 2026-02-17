@@ -7,8 +7,6 @@ const getPatientInfo = async (patientId, activeTabId) => {
         activeTabId,
     );
 
-    console.log("Patient Info Page HTML:", patientInfoPage);
-
     const soup = new JSSoup(patientInfoPage);
 
     let newPatientInfo = {};
