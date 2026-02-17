@@ -11,6 +11,7 @@ import MiniSearch from "minisearch";
 import SearchBox from "./search-box";
 import { DownloadIcon } from "lucide-react";
 import { getPatientInfo } from "../Utils/patientinfo";
+import { use } from "react";
 
 const sectionCodes = {
     DR_NOTES: "Doctors Note",
@@ -61,6 +62,7 @@ const NoteItem = ({ note }) => {
 export default function NotesBrowser({ patientId }) {
     const activeTab = useContext(ActiveTabContext);
     const [loading, setLoading] = useState(false);
+    const [loadingNotes, setLoadingNotes] = useState(false);
     const [error, setError] = useState(null);
     const [notes, setNotes] = useState(null);
     const [encounters, setEncounters] = useState(null);
@@ -91,13 +93,19 @@ export default function NotesBrowser({ patientId }) {
 
         const combined_text = notes.map((note) => note.text).join("\n\n");
 
-        const escaped_text = combined_text.replace(/\n/g, "\n");
-
         const dataStr =
             "data:text/json;charset=utf-8," +
             encodeURIComponent(
                 JSON.stringify(
-                    { patient: patientInfo, clinical_notes: escaped_text },
+                    {
+                        patient: {
+                            id: patientId,
+                            sex: patientInfo.sex,
+                            dob: patientInfo.dob,
+                        },
+                        encounterId: selectedEncounterId || "All Encounters",
+                        clinical_notes: combined_text,
+                    },
                     null,
                     2,
                 ),
@@ -125,6 +133,30 @@ export default function NotesBrowser({ patientId }) {
         (async () => {
             setLoading(true);
             try {
+                setEncounters(
+                    await getResource(
+                        `/live/df/pcc/dashboard/previousEncounters/${patientId}`,
+                        activeTab.id,
+                    ),
+                );
+                setSelectedEncounterId("");
+                console.log("Encounters Response:");
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, [patientId]);
+
+    useEffect(() => {
+        if (!patientId) {
+            setNotes(null);
+            return;
+        }
+        (async () => {
+            setLoadingNotes(true);
+            try {
                 setNotes(
                     sanitizeNotes(
                         await getResource(
@@ -133,19 +165,13 @@ export default function NotesBrowser({ patientId }) {
                         ),
                     ),
                 );
-                setEncounters(
-                    await getResource(
-                        `/live/df/pcc/dashboard/previousEncounters/${patientId}`,
-                        activeTab.id,
-                    ),
-                );
             } catch (err) {
                 setError(err);
             } finally {
-                setLoading(false);
+                setLoadingNotes(false);
             }
         })();
-    }, [patientId, selectedEncounterId]);
+    }, [selectedEncounterId, patientId]);
 
     const handleSelectSearchTerm = (newSearchTerm) => {
         setSearchTerm(newSearchTerm);
@@ -189,11 +215,12 @@ export default function NotesBrowser({ patientId }) {
                 <select
                     className="p-1 rounded-sm border-gray-300 border grow"
                     onChange={(e) => setSelectedEncounterId(e.target.value)}
+                    value={selectedEncounterId}
                 >
                     <option value="">All Encounters</option>
                     {encounters &&
                         encounters.data.map((encounter) => (
-                            <option value={encounter.id} key={encounter.conId}>
+                            <option value={encounter.id} key={encounter.id}>
                                 {`${encounter.name}`}{" "}
                             </option>
                         ))}
@@ -218,11 +245,22 @@ export default function NotesBrowser({ patientId }) {
                 </ToolBarButton>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
-                <ul className="flex flex-col gap-2 p-2">
-                    {fileterdNotes.map((note, index) => (
-                        <NoteItem note={note} key={index} />
-                    ))}
-                </ul>
+                {loadingNotes ? (
+                    <div className="w-full h-full flex">
+                        <LoadingSpinner message={"Loading Notes..."} />
+                    </div>
+                ) : fileterdNotes.length === 0 ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                        <p className="text-gray-500">No Notes Available</p>
+                    </div>
+                ) : (
+                    <ul className="flex flex-col gap-2 p-2">
+                        {fileterdNotes.map((note, index) => (
+                            <NoteItem note={note} key={index} />
+                        ))}
+                    </ul>
+                )}
+
                 {/* <JSONTree data={notes} /> */}
             </div>
         </div>
