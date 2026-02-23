@@ -64,6 +64,7 @@ export default function PatientInformation({ patientId }) {
 
     return (
         <div>
+            <div>{patientInfo.id}</div>
             <div>
                 <span className="font-bold">{patientInfo.name}</span> |{" "}
                 {patientInfo.sex} | {patientInfo.age} [{patientInfo.dob}]

@@ -168,7 +168,8 @@ export default function NotesBrowser({ patientId }) {
 
             const downloadData = {
                 patient: {
-                    id: patientId,
+                    id: patientInfo.id,
+                    name: patientInfo.name,
                     sex: patientInfo.sex,
                     dob: patientInfo.dob,
                 },
@@ -178,12 +179,16 @@ export default function NotesBrowser({ patientId }) {
 
             console.log("Download Data:", downloadData);
 
-            const dataStr =
-                "data:text/json;charset=utf-8," +
-                encodeURIComponent(JSON.stringify(downloadData, null, 2));
+            const blob = new Blob([JSON.stringify(downloadData, null, 2)], {
+                type: "application/json",
+            });
+            const dataStr = URL.createObjectURL(blob);
+            // const dataStr =
+            //     "data:text/json;charset=utf-8," +
+            //     encodeURIComponent(JSON.stringify(downloadData, null, 2));
 
             setDownloadUrl(dataStr);
-            setDownloadFilename(`notes-${patientId}.json`);
+            setDownloadFilename(`${patientInfo.id}-Notes.json`);
         } catch (err) {
             console.error("Error preparing download:", err);
             setError(err);

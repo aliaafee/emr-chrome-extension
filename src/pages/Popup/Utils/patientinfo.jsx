@@ -10,6 +10,9 @@ const getPatientInfo = async (patientId, activeTabId) => {
     const soup = new JSSoup(patientInfoPage);
 
     let newPatientInfo = {};
+
+    newPatientInfo.id = soup.findAll("td", "pat-mrn")[0].text;
+
     newPatientInfo.name = soup.findAll("span", "pat-name")[0].text;
 
     const demographics = soup.findAll("span", "pat-demgp-det");

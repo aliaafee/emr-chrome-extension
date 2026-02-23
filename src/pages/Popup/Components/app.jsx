@@ -80,7 +80,7 @@ export default function App() {
                 url: chrome.runtime.getURL(url),
                 type: "popup",
             },
-            (window) => {}
+            (window) => {},
         );
 
         if (isPopUpWindw) {
@@ -124,11 +124,6 @@ export default function App() {
         <div className="w-full h-full flex flex-col">
             <div className="flex items-start justify-between">
                 <div className=" p-1.5">
-                    <div>
-                        {`IGMH${Number(patientId)
-                            .toString()
-                            .padStart(10, "0")}`}
-                    </div>
                     <PatientInformation patientId={patientId} />
                 </div>
 
