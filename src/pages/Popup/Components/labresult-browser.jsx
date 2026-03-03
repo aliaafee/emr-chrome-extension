@@ -134,13 +134,14 @@ const ResultCard = ({ result }) => (
     </div>
 );
 
-export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
+export default function LabResultBrowser({ patientId}) {
     const activeTab = useContext(ActiveTabContext);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [labResults, setLabResults] = useState(null);
     // const [searchTerm, setSearchTerm] = useState("");
     const [fastSearchTerm, setFastSearchTerm] = useState("");
+    const [datewiseCount, setDatewiseCount] = useState(10);
 
     // const searchIndex = useMemo(() => {
     //     if (!labResults) {
@@ -195,7 +196,7 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
                 setLoading(false);
             }
         })();
-    }, [patientId]);
+    }, [patientId, datewiseCount]);
 
     // const handleSelectSearchTerm = (newSearchTerm) => {
     //     setSearchTerm(newSearchTerm);
@@ -274,6 +275,22 @@ export default function LabResultBrowser({ patientId, datewiseCount = 10 }) {
                             }}
                         />
                     </div>
+                </div>
+                <div>
+                    <label htmlFor="datewiseCount" className="mr-1">
+                        Datewise Count:
+                    </label>
+                    <select
+                        id="datewiseCount"
+                        value={datewiseCount}
+                        onChange={(e) => setDatewiseCount(Number(e.target.value))}
+                        className="rounded-md border-gray-300"
+                    >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={30}>30</option>
+                        <option value={40}>40</option>
+                    </select>
                 </div>
             </ToolBar>
             <div className="w-full flex flex-col overflow-auto">
