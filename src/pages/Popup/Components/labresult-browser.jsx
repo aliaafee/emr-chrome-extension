@@ -31,36 +31,36 @@ const sanitizeLabResults = (results) =>
                           })),
                       ]
                     : result.isProfile
-                    ? [
-                          ...a,
-                          ...result.profiles.reduce(
-                              (a_profile, profile) =>
-                                  profile.hasParameter
-                                      ? [
-                                            ...a_profile,
-                                            ...profile.parameters.map(
-                                                (parameter) => ({
-                                                    parent: result.name,
-                                                    resultDate:
-                                                        result.resultDate,
-                                                    ...parameter,
-                                                })
-                                            ),
-                                        ]
-                                      : [
-                                            ...a_profile,
-                                            {
-                                                parent: result.name,
-                                                resultDate: result.resultDate,
-                                                ...profile,
-                                            },
-                                        ],
-                              []
-                          ),
-                      ]
-                    : [...a, result]
+                      ? [
+                            ...a,
+                            ...result.profiles.reduce(
+                                (a_profile, profile) =>
+                                    profile.hasParameter
+                                        ? [
+                                              ...a_profile,
+                                              ...profile.parameters.map(
+                                                  (parameter) => ({
+                                                      parent: result.name,
+                                                      resultDate:
+                                                          result.resultDate,
+                                                      ...parameter,
+                                                  }),
+                                              ),
+                                          ]
+                                        : [
+                                              ...a_profile,
+                                              {
+                                                  parent: result.name,
+                                                  resultDate: result.resultDate,
+                                                  ...profile,
+                                              },
+                                          ],
+                                [],
+                            ),
+                        ]
+                      : [...a, result]
                 : [...a, result],
-        []
+        [],
     );
 
 // const toSortedLabResults = (results) =>
@@ -75,8 +75,8 @@ const mergeDuplicates = (results) =>
                 (value) =>
                     !a[result.name].datewiseValues.reduce(
                         (a, v) => a || v.labResultId === value.labResultId,
-                        false
-                    )
+                        false,
+                    ),
             );
             a[result.name].datewiseValues = [
                 ...a[result.name].datewiseValues,
@@ -134,7 +134,7 @@ const ResultCard = ({ result }) => (
     </div>
 );
 
-export default function LabResultBrowser({ patientId}) {
+export default function LabResultBrowser({ patientId }) {
     const activeTab = useContext(ActiveTabContext);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -174,12 +174,12 @@ export default function LabResultBrowser({ patientId}) {
                     sanitizeLabResults(
                         await getResource(
                             `/live/df/pcc/widgets/labservices/${patientId}/max/${datewiseCount}?encounterId=`,
-                            activeTab.id
-                        )
-                    )
+                            activeTab.id,
+                        ),
+                    ),
                 );
                 const loadedLabResultsList = Object.entries(
-                    loadedLabResults
+                    loadedLabResults,
                 ).map(([key, result]) => ({
                     name: result.name,
                     parent:
@@ -276,20 +276,25 @@ export default function LabResultBrowser({ patientId}) {
                         />
                     </div>
                 </div>
-                <div>
+                <div className="px-1.5 py-[5px] m-0.5 bg-white rounded-md border-[1px] border-gray-400">
                     <label htmlFor="datewiseCount" className="mr-1">
                         Datewise Count:
                     </label>
                     <select
                         id="datewiseCount"
                         value={datewiseCount}
-                        onChange={(e) => setDatewiseCount(Number(e.target.value))}
+                        onChange={(e) =>
+                            setDatewiseCount(Number(e.target.value))
+                        }
                         className="rounded-md border-gray-300"
                     >
                         <option value={10}>10</option>
                         <option value={20}>20</option>
                         <option value={30}>30</option>
                         <option value={40}>40</option>
+                        <option value={50}>50</option>
+                        <option value={60}>60</option>
+                        <option value={100}>100</option>
                     </select>
                 </div>
             </ToolBar>
@@ -328,12 +333,12 @@ export default function LabResultBrowser({ patientId}) {
                                             {result.data.datewiseValues
                                                 .toSorted((a, b) =>
                                                     parseDate(
-                                                        a.resultDate
+                                                        a.resultDate,
                                                     ).isBefore(
-                                                        parseDate(b.resultDate)
+                                                        parseDate(b.resultDate),
                                                     )
                                                         ? 1
-                                                        : -1
+                                                        : -1,
                                                 )
                                                 .map(
                                                     (datewiseItem, dateIndex) =>
@@ -344,7 +349,7 @@ export default function LabResultBrowser({ patientId}) {
                                                                 }
                                                                 key={dateIndex}
                                                             />
-                                                        )
+                                                        ),
                                                 )}
                                         </div>
                                     )
